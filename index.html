@@ -1,0 +1,2699 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0d1220">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>מאמן C++ — תרגול אישי</title>
+<style>
+:root{
+  --bg:#0d1220;
+  --bg2:#111831;
+  --card:#182138;
+  --card2:#1e2a47;
+  --line:#2a3a5f;
+  --text:#e8edf7;
+  --muted:#9aa8c7;
+  --accent:#4ea1ff;
+  --accent2:#7c5cff;
+  --green:#3ddc84;
+  --yellow:#ffd166;
+  --red:#ff6b6b;
+  --code-bg:#0a0f1c;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);
+  color:var(--text);
+  min-height:100%;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.wrap{max-width:640px;margin:0 auto;padding:12px 14px 40px}
+/* ---------- header ---------- */
+header{
+  position:sticky;top:0;z-index:10;
+  background:rgba(13,18,32,.92);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  padding:10px 14px calc(10px);
+  padding-top:calc(10px + env(safe-area-inset-top));
+}
+.h-inner{max-width:640px;margin:0 auto}
+.h-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.logo{font-size:19px;font-weight:800;letter-spacing:.3px}
+.logo span{color:var(--accent)}
+.h-stats{font-size:13px;color:var(--muted);white-space:nowrap}
+.progress-bar{height:8px;background:var(--card);border-radius:99px;margin-top:8px;overflow:hidden}
+.progress-fill{height:100%;width:0%;border-radius:99px;
+  background:linear-gradient(90deg,var(--accent),var(--green));
+  transition:width .4s ease}
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  border:none;border-radius:14px;cursor:pointer;
+  font-family:inherit;font-size:16px;font-weight:700;color:var(--text);
+  background:var(--card2);border:1px solid var(--line);
+  min-height:48px;padding:10px 16px;
+  transition:transform .06s ease,filter .15s ease;
+  user-select:none;-webkit-user-select:none;
+}
+.btn:active{transform:scale(.97);filter:brightness(1.15)}
+.btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none}
+.btn.success{background:linear-gradient(135deg,#1f9d5f,#3ddc84);border:none;color:#04160c}
+.btn.ghost{background:transparent}
+.btn.warn{background:#3a2f14;border-color:#6b5518;color:var(--yellow)}
+.btn.full{width:100%}
+.btn:disabled{opacity:.45;pointer-events:none}
+.btn-row{display:flex;gap:8px;margin-top:10px}
+.btn-row .btn{flex:1}
+/* ---------- cards ---------- */
+.card{
+  background:var(--card);border:1px solid var(--line);
+  border-radius:18px;padding:16px;margin-top:14px;
+}
+.card h2{font-size:17px;margin-bottom:10px}
+/* ---------- menu ---------- */
+.continue-box{display:flex;flex-direction:column;gap:6px}
+.continue-box .sub{color:var(--muted);font-size:14px}
+.topic{
+  display:flex;align-items:center;gap:12px;width:100%;
+  background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:14px;margin-top:10px;cursor:pointer;color:var(--text);
+  font-family:inherit;text-align:right;
+}
+.topic:active{filter:brightness(1.2)}
+.topic .ico{font-size:26px;width:40px;text-align:center}
+.topic .t-info{flex:1;min-width:0}
+.topic .t-name{font-weight:800;font-size:16px}
+.topic .t-count{color:var(--muted);font-size:13px;margin-top:2px}
+.topic .mini-bar{height:5px;background:var(--bg);border-radius:99px;margin-top:7px;overflow:hidden}
+.topic .mini-fill{height:100%;background:var(--green);border-radius:99px}
+.topic .t-pct{font-size:13px;color:var(--muted);min-width:38px;text-align:left}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:7px;margin-top:12px}
+.gcell{
+  aspect-ratio:1;border-radius:12px;border:1px solid var(--line);
+  background:var(--card2);color:var(--text);font-weight:700;font-size:14px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  font-family:inherit;
+}
+.gcell.done{background:#12351f;border-color:#1f9d5f;color:var(--green)}
+.gcell.current{outline:2px solid var(--accent)}
+/* ---------- exercise view ---------- */
+.ex-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:14px}
+.chip{
+  display:inline-block;background:var(--card2);border:1px solid var(--line);
+  color:var(--muted);border-radius:99px;padding:5px 12px;font-size:13px;font-weight:700;
+}
+.chip.acc{color:var(--accent);border-color:var(--accent)}
+.diff{display:flex;gap:3px;margin-top:8px;align-items:center}
+.diff .dot{width:9px;height:9px;border-radius:50%;background:var(--card2);border:1px solid var(--line)}
+.diff .dot.on{background:var(--yellow);border-color:var(--yellow)}
+.diff .lbl{font-size:12px;color:var(--muted);margin-inline-start:6px}
+.ex-title{font-size:20px;font-weight:800;margin-top:10px}
+.ex-desc{margin-top:8px;line-height:1.65;color:var(--text);font-size:16px}
+.io-label{font-size:13px;color:var(--muted);font-weight:700;margin:12px 0 5px}
+pre.code{
+  direction:ltr;text-align:left;
+  background:var(--code-bg);border:1px solid var(--line);border-radius:12px;
+  padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:14px;line-height:1.55;overflow-x:auto;white-space:pre;color:#cfe3ff;
+}
+textarea.editor{
+  width:100%;min-height:220px;resize:vertical;
+  direction:ltr;text-align:left;
+  background:var(--code-bg);color:#d7f0d7;
+  border:1px solid var(--line);border-radius:14px;
+  padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:16px;line-height:1.5;
+  outline:none;
+}
+textarea.editor:focus{border-color:var(--accent)}
+.hint-box{
+  background:#241f0e;border:1px solid #6b5518;border-radius:12px;
+  padding:12px;margin-top:10px;font-size:15px;line-height:1.6;color:#ffe9ad;
+}
+.sol-box{margin-top:10px;display:none}
+.feedback{border-radius:12px;padding:12px;margin-top:10px;font-size:15px;line-height:1.6;display:none}
+.feedback.ok{display:block;background:#0e2a1a;border:1px solid #1f9d5f;color:#b8f5cf}
+.feedback.bad{display:block;background:#33141a;border:1px solid #a13a4a;color:#ffc9cf}
+.feedback.mid{display:block;background:#241f0e;border:1px solid #6b5518;color:#ffe9ad}
+.done-badge{
+  display:none;background:#12351f;border:1px solid #1f9d5f;color:var(--green);
+  border-radius:99px;padding:5px 12px;font-size:13px;font-weight:800;
+}
+.nav-row{display:flex;gap:8px;margin-top:16px}
+.nav-row .btn{flex:1}
+.hidden{display:none !important}
+.small-note{color:var(--muted);font-size:13px;margin-top:8px;line-height:1.5}
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:28px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="h-inner">
+    <div class="h-top">
+      <div class="logo">מאמן <span>C++</span></div>
+      <div class="h-stats" id="headStats"></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="headBar"></div></div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ===== menu view ===== -->
+  <div id="menuView">
+    <div class="card continue-box">
+      <h2>👋 ברוך הבא למאמן האישי שלך</h2>
+      <div class="sub" id="continueSub"></div>
+      <button class="btn primary full" id="continueBtn" style="margin-top:8px">▶ המשך תרגול</button>
+    </div>
+
+    <div id="topicsList"></div>
+
+    <div class="card">
+      <h2>כל התרגילים</h2>
+      <div class="small-note">ירוק = הושלם. לחץ על מספר כדי לקפוץ לתרגיל.</div>
+      <div class="grid" id="exGrid"></div>
+    </div>
+
+    <div class="card">
+      <h2>⚙️ נתונים</h2>
+      <button class="btn warn full" id="resetBtn">איפוס כל ההתקדמות</button>
+      <div class="small-note">ההתקדמות נשמרת בזיכרון הדפדפן (localStorage) במכשיר הזה בלבד.</div>
+    </div>
+
+    <footer>עובד לגמרי Offline · קובץ HTML יחיד · בהצלחה בלימוד 💪</footer>
+  </div>
+
+  <!-- ===== exercise view ===== -->
+  <div id="exView" class="hidden">
+    <div class="ex-head">
+      <button class="btn ghost" id="backBtn">→ תפריט</button>
+      <span class="chip" id="exNumChip"></span>
+      <span class="done-badge" id="doneBadge">✓ הושלם</span>
+    </div>
+
+    <div class="card">
+      <span class="chip acc" id="exTopicChip"></span>
+      <div class="diff" id="diffDots"></div>
+      <div class="ex-title" id="exTitle"></div>
+      <div class="ex-desc" id="exDesc"></div>
+      <div id="ioWrap">
+        <div class="io-label">📥 דוגמת קלט:</div>
+        <pre class="code" id="exInput"></pre>
+        <div class="io-label">📤 דוגמת פלט:</div>
+        <pre class="code" id="exOutput"></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>✍️ הפתרון שלך</h2>
+      <textarea class="editor" id="editor" spellcheck="false" autocapitalize="off" autocorrect="off" placeholder="#include <iostream>&#10;using namespace std;&#10;&#10;int main() {&#10;    // כתוב כאן את הפתרון שלך&#10;    return 0;&#10;}"></textarea>
+      <div class="btn-row">
+        <button class="btn primary" id="checkBtn">✔ בדוק פתרון</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="hintBtn">💡 רמז</button>
+        <button class="btn" id="solBtn">📖 פתרון מלא</button>
+      </div>
+      <div id="hintsArea"></div>
+      <div class="feedback" id="feedback"></div>
+      <div class="sol-box" id="solBox">
+        <div class="io-label">📖 פתרון לדוגמה:</div>
+        <pre class="code" id="solCode"></pre>
+      </div>
+      <div class="small-note">הקוד שלך נשמר אוטומטית לכל תרגיל.</div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn success full" id="markBtn">✓ סמן כהושלם</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn" id="prevBtn">→ הקודם</button>
+      <button class="btn primary" id="nextBtn">הבא ←</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+"use strict";
+/* ================= data ================= */
+const TOPICS = [
+  {name:"קלט ופלט", ico:"⌨️"},
+  {name:"תנאים (if)", ico:"🔀"},
+  {name:"לולאת while", ico:"🔁"},
+  {name:"לולאת for", ico:"🔂"},
+  {name:"לולאות מקוננות", ico:"🌀"},
+  {name:"פונקציות", ico:"🧩"},
+  {name:"מערכים", ico:"📦"},
+  {name:"מחרוזות בסיסיות", ico:"🔤"},
+  {name:"מצביעים", ico:"📍"}
+];
+function e(n,topic,d,title,desc,inp,out,hints,sol,kw){
+  return {n,topic,d,title,desc,inp,out,hints,sol,kw};
+}
+const EX = [];
+
+/* ===== שלב 1: קלט ופלט (1-10) ===== */
+EX.push(
+e(1,0,1,"Hello World",
+"כתוב תוכנית שמדפיסה למסך את המשפט: Hello World",
+"(אין קלט)","Hello World",
+["כל תוכנית מתחילה ב-#include <iostream> ובפונקציה main.","השתמש ב-cout עם האופרטור << כדי להדפיס טקסט."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    cout << "Hello World" << endl;
+    return 0;
+}`,["cout","Hello World"]),
+
+e(2,0,1,"שלום אישי",
+"קלוט שם מהמשתמש והדפס: Hello ואחריו השם. לדוגמה אם הוקלד Dana יודפס Hello Dana",
+"Dana","Hello Dana",
+["אפשר לשמור מילה במערך תווים: char name[50]; ואז לקלוט אותו עם cin.","הדפס עם: cout << \"Hello \" << name;"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    char name[50];
+    cin >> name;
+    cout << "Hello " << name << endl;
+    return 0;
+}`,["cin","cout","Hello"]),
+
+e(3,0,1,"סכום שני מספרים",
+"קלוט שני מספרים שלמים והדפס את הסכום שלהם.",
+"4 7","11",
+["הגדר שני משתנים מסוג int וקלוט אותם: cin >> a >> b;","הדפס את a + b."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int a, b;
+    cin >> a >> b;
+    cout << a + b << endl;
+    return 0;
+}`,["cin","+","cout"]),
+
+e(4,0,1,"הפרש שני מספרים",
+"קלוט שני מספרים שלמים והדפס את ההפרש ביניהם (הראשון פחות השני).",
+"10 3","7",
+["בדיוק כמו תרגיל הסכום, רק עם אופרטור אחר.","השתמש ב- a - b."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int a, b;
+    cin >> a >> b;
+    cout << a - b << endl;
+    return 0;
+}`,["cin","-","cout"]),
+
+e(5,0,1,"מכפלת שני מספרים",
+"קלוט שני מספרים שלמים והדפס את המכפלה שלהם.",
+"6 5","30",
+["אופרטור הכפל ב-C++ הוא כוכבית: *","הדפס את a * b."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int a, b;
+    cin >> a >> b;
+    cout << a * b << endl;
+    return 0;
+}`,["cin","*","cout"]),
+
+e(6,0,2,"מנה של שני מספרים",
+"קלוט שני מספרים והדפס את תוצאת החלוקה של הראשון בשני. שים לב: כדי לקבל תוצאה עם שבר עשרוני כדאי להשתמש ב-double.",
+"7 2","3.5",
+["אם מחלקים שני int התוצאה תהיה שלמה (7/2 = 3). השתמש ב-double.","הגדר: double a, b; ואז הדפס a / b."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    double a, b;
+    cin >> a >> b;
+    cout << a / b << endl;
+    return 0;
+}`,["cin","/","double"]),
+
+e(7,0,2,"שטח מלבן",
+"קלוט אורך ורוחב של מלבן והדפס את שטחו.",
+"4 6","24",
+["שטח מלבן = אורך כפול רוחב.","קלוט שני משתנים והדפס את המכפלה שלהם."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int width, height;
+    cin >> width >> height;
+    cout << width * height << endl;
+    return 0;
+}`,["cin","*","cout"]),
+
+e(8,0,2,"היקף מלבן",
+"קלוט אורך ורוחב של מלבן והדפס את היקפו.",
+"4 6","20",
+["היקף מלבן = פעמיים (אורך + רוחב).","זכור סוגריים: 2 * (a + b)."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int width, height;
+    cin >> width >> height;
+    cout << 2 * (width + height) << endl;
+    return 0;
+}`,["cin","(","cout"]),
+
+e(9,0,2,"דקות לשעות ודקות",
+"קלוט מספר דקות והדפס כמה שעות וכמה דקות זה. לדוגמה: 130 דקות הן 2 שעות ו-10 דקות.",
+"130","2 hours 10 minutes",
+["חלוקה שלמה ב-60 נותנת את מספר השעות: minutes / 60","שארית החלוקה (אופרטור %) נותנת את הדקות הנותרות: minutes % 60"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int total, hours, minutes;
+    cin >> total;
+    hours = total / 60;
+    minutes = total % 60;
+    cout << hours << " hours " << minutes << " minutes" << endl;
+    return 0;
+}`,["cin","/","%"]),
+
+e(10,0,2,"שניות לשעות, דקות ושניות",
+"קלוט מספר שניות והדפס אותו בפורמט שעות:דקות:שניות. לדוגמה 3725 שניות הן 1:2:5",
+"3725","1:2:5",
+["שעות = total / 3600. שניות שנשארו בסוף = total % 60.","דקות = (total % 3600) / 60 — קודם שארית משעה, ואז חלוקה ב-60."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int total, h, m, s;
+    cin >> total;
+    h = total / 3600;
+    m = (total % 3600) / 60;
+    s = total % 60;
+    cout << h << ":" << m << ":" << s << endl;
+    return 0;
+}`,["cin","/","%"]),
+
+/* ===== שלב 2: תנאים if (11-25) ===== */
+e(11,1,2,"הגדול מבין שניים",
+"קלוט שני מספרים והדפס את הגדול מביניהם.",
+"3 8","8",
+["השתמש ב-if עם התנאי a > b.","אם התנאי מתקיים הדפס את a, אחרת (else) הדפס את b."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int a, b;
+    cin >> a >> b;
+    if (a > b)
+        cout << a << endl;
+    else
+        cout << b << endl;
+    return 0;
+}`,["if","else",">"]),
+
+e(12,1,2,"הקטן מבין שניים",
+"קלוט שני מספרים והדפס את הקטן מביניהם.",
+"3 8","3",
+["בדיוק כמו התרגיל הקודם, רק הפוך.","השתמש בתנאי a < b."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int a, b;
+    cin >> a >> b;
+    if (a < b)
+        cout << a << endl;
+    else
+        cout << b << endl;
+    return 0;
+}`,["if","else","<"]),
+
+e(13,1,2,"זוגי או אי-זוגי",
+"קלוט מספר שלם והדפס Even אם הוא זוגי או Odd אם הוא אי-זוגי.",
+"6","Even",
+["מספר זוגי מתחלק ב-2 בלי שארית.","בדוק: if (n % 2 == 0)"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    if (n % 2 == 0)
+        cout << "Even" << endl;
+    else
+        cout << "Odd" << endl;
+    return 0;
+}`,["if","%","else"]),
+
+e(14,1,2,"חיובי, שלילי או אפס",
+"קלוט מספר והדפס Positive אם הוא חיובי, Negative אם שלילי, או Zero אם הוא אפס.",
+"-4","Negative",
+["יש כאן שלושה מקרים — צריך if, else if ו-else.","בדוק קודם n > 0, אחר כך n < 0, ומה שנשאר הוא אפס."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    if (n > 0)
+        cout << "Positive" << endl;
+    else if (n < 0)
+        cout << "Negative" << endl;
+    else
+        cout << "Zero" << endl;
+    return 0;
+}`,["if","else",">"]),
+
+e(15,1,2,"האם מתחלק ב-5",
+"קלוט מספר והדפס Yes אם הוא מתחלק ב-5 בלי שארית, אחרת הדפס No.",
+"35","Yes",
+["מספר מתחלק ב-5 אם השארית מחלוקה ב-5 היא 0.","השתמש ב: n % 5 == 0"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    if (n % 5 == 0)
+        cout << "Yes" << endl;
+    else
+        cout << "No" << endl;
+    return 0;
+}`,["if","%","5"]),
+
+e(16,1,3,"מתחלק גם ב-3 וגם ב-7",
+"קלוט מספר והדפס Yes אם הוא מתחלק גם ב-3 וגם ב-7, אחרת No.",
+"21","Yes",
+["צריך לחבר שני תנאים עם האופרטור && (וגם).","התנאי: n % 3 == 0 && n % 7 == 0"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    if (n % 3 == 0 && n % 7 == 0)
+        cout << "Yes" << endl;
+    else
+        cout << "No" << endl;
+    return 0;
+}`,["if","&&","%"]),
+
+e(17,1,3,"הגדול מבין שלושה",
+"קלוט שלושה מספרים והדפס את הגדול ביותר.",
+"4 9 2","9",
+["התחל מהנחה שהראשון הוא הגדול, ואז בדוק את השאר.","שמור max = a ואז: if (b > max) max = b; וכך גם עבור c."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int a, b, c, max;
+    cin >> a >> b >> c;
+    max = a;
+    if (b > max)
+        max = b;
+    if (c > max)
+        max = c;
+    cout << max << endl;
+    return 0;
+}`,["if",">","cin"]),
+
+e(18,1,4,"מיון שלושה מספרים",
+"קלוט שלושה מספרים והדפס אותם מהקטן לגדול (בלי מערך!).",
+"5 1 3","1 3 5",
+["אפשר להחליף בין שני משתנים בעזרת משתנה עזר temp.","בצע שלוש השוואות: אם a > b החלף, אם b > c החלף, ושוב אם a > b החלף."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int a, b, c, temp;
+    cin >> a >> b >> c;
+    if (a > b) { temp = a; a = b; b = temp; }
+    if (b > c) { temp = b; b = c; c = temp; }
+    if (a > b) { temp = a; a = b; b = temp; }
+    cout << a << " " << b << " " << c << endl;
+    return 0;
+}`,["if","temp",">"]),
+
+e(19,1,3,"שנה מעוברת",
+"קלוט שנה והדפס Leap אם היא מעוברת או Not leap אם לא. שנה מעוברת: מתחלקת ב-4 אך לא ב-100, או שמתחלקת ב-400.",
+"2024","Leap",
+["צריך לשלב && וגם || באותו תנאי.","התנאי: (year % 4 == 0 && year % 100 != 0) || year % 400 == 0"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int year;
+    cin >> year;
+    if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0)
+        cout << "Leap" << endl;
+    else
+        cout << "Not leap" << endl;
+    return 0;
+}`,["&&","||","%"]),
+
+e(20,1,3,"ציון לאות",
+"קלוט ציון (0-100) והדפס אות: 90 ומעלה A, מ-80 B, מ-70 C, מ-60 D, אחרת F.",
+"85","B",
+["השתמש בשרשרת של if / else if מהגבוה לנמוך.","אם בודקים מהגבוה לנמוך, מספיק לבדוק grade >= 80 בלי גבול עליון."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int grade;
+    cin >> grade;
+    if (grade >= 90)
+        cout << "A" << endl;
+    else if (grade >= 80)
+        cout << "B" << endl;
+    else if (grade >= 70)
+        cout << "C" << endl;
+    else if (grade >= 60)
+        cout << "D" << endl;
+    else
+        cout << "F" << endl;
+    return 0;
+}`,["else if",">="]),
+
+e(21,1,3,"מחיר אחרי הנחה",
+"קלוט מחיר. אם המחיר 100 ומעלה — יש הנחה של 10%. הדפס את המחיר הסופי.",
+"200","180",
+["10% הנחה אומר לשלם 90% מהמחיר: price * 0.9","השתמש ב-double כדי שהחישוב יהיה מדויק."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    double price;
+    cin >> price;
+    if (price >= 100)
+        price = price * 0.9;
+    cout << price << endl;
+    return 0;
+}`,["if","double","0.9"]),
+
+e(22,1,3,"חישוב מס",
+"קלוט משכורת. אם היא עד 5000 המס הוא 10%, אחרת המס הוא 20%. הדפס את סכום המס.",
+"8000","1600",
+["מס של 10% הוא salary * 0.1","השתמש ב-if / else כדי לבחור בין שני אחוזי המס."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    double salary, tax;
+    cin >> salary;
+    if (salary <= 5000)
+        tax = salary * 0.1;
+    else
+        tax = salary * 0.2;
+    cout << tax << endl;
+    return 0;
+}`,["if","else","double"]),
+
+e(23,1,4,"האם אפשר ליצור משולש",
+"קלוט שלוש צלעות והדפס Triangle אם אפשר ליצור מהן משולש, אחרת Not a triangle. תנאי: סכום כל שתי צלעות גדול מהצלע השלישית.",
+"3 4 5","Triangle",
+["צריך לבדוק שלושה תנאים בבת אחת עם &&.","התנאי: a + b > c && a + c > b && b + c > a"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int a, b, c;
+    cin >> a >> b >> c;
+    if (a + b > c && a + c > b && b + c > a)
+        cout << "Triangle" << endl;
+    else
+        cout << "Not a triangle" << endl;
+    return 0;
+}`,["&&","if","+"]),
+
+e(24,1,4,"סוג משולש",
+"קלוט שלוש צלעות של משולש חוקי והדפס: Equilateral (שווה צלעות), Isosceles (שווה שוקיים) או Scalene (שונה צלעות).",
+"5 5 5","Equilateral",
+["שווה צלעות: כל השלוש שוות. שווה שוקיים: לפחות שתיים שוות.","בדוק קודם a == b && b == c, אחר כך a == b || b == c || a == c"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int a, b, c;
+    cin >> a >> b >> c;
+    if (a == b && b == c)
+        cout << "Equilateral" << endl;
+    else if (a == b || b == c || a == c)
+        cout << "Isosceles" << endl;
+    else
+        cout << "Scalene" << endl;
+    return 0;
+}`,["&&","||","else if"]),
+
+e(25,1,4,"מחשבון פשוט",
+"קלוט מספר, תו של פעולה (+ - * /) ומספר נוסף, והדפס את התוצאה. אם מחלקים באפס הדפס Error.",
+"6 * 7","42",
+["אפשר לקלוט תו לתוך משתנה מסוג char: char op; cin >> op;","השווה את התו עם גרשיים בודדים: if (op == '+') ..."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    double a, b;
+    char op;
+    cin >> a >> op >> b;
+    if (op == '+')
+        cout << a + b << endl;
+    else if (op == '-')
+        cout << a - b << endl;
+    else if (op == '*')
+        cout << a * b << endl;
+    else if (op == '/') {
+        if (b != 0)
+            cout << a / b << endl;
+        else
+            cout << "Error" << endl;
+    }
+    return 0;
+}`,["char","else if","=="]),
+
+/* ===== שלב 3: while (26-40) ===== */
+e(26,2,3,"הדפסת 1 עד 10",
+"בעזרת לולאת while הדפס את המספרים מ-1 עד 10 באותה שורה, מופרדים ברווח.",
+"(אין קלט)","1 2 3 4 5 6 7 8 9 10",
+["צור משתנה מונה: int i = 1; והגדל אותו בכל סיבוב.","הלולאה רצה כל עוד i <= 10, ובסוף כל סיבוב: i++"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int i = 1;
+    while (i <= 10) {
+        cout << i << " ";
+        i++;
+    }
+    cout << endl;
+    return 0;
+}`,["while","i++","<="]),
+
+e(27,2,3,"הדפסת 10 עד 1",
+"בעזרת לולאת while הדפס את המספרים מ-10 עד 1 בסדר יורד.",
+"(אין קלט)","10 9 8 7 6 5 4 3 2 1",
+["הפעם המונה מתחיל ב-10 ויורד.","התנאי: i >= 1 והעדכון: i--"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int i = 10;
+    while (i >= 1) {
+        cout << i << " ";
+        i--;
+    }
+    cout << endl;
+    return 0;
+}`,["while","i--",">="]),
+
+e(28,2,3,"סכום מ-1 עד N",
+"קלוט מספר N והדפס את הסכום של כל המספרים מ-1 עד N.",
+"5","15",
+["צריך משתנה צובר: int sum = 0; שמתעדכן בכל סיבוב.","בתוך הלולאה: sum = sum + i;"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n, i = 1, sum = 0;
+    cin >> n;
+    while (i <= n) {
+        sum = sum + i;
+        i++;
+    }
+    cout << sum << endl;
+    return 0;
+}`,["while","sum","+"]),
+
+e(29,2,4,"מכפלת 1 עד N",
+"קלוט מספר N והדפס את המכפלה של כל המספרים מ-1 עד N (עצרת).",
+"4","24",
+["משתנה צובר של כפל חייב להתחיל מ-1 ולא מ-0!","בתוך הלולאה: product = product * i;"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n, i = 1, product = 1;
+    cin >> n;
+    while (i <= n) {
+        product = product * i;
+        i++;
+    }
+    cout << product << endl;
+    return 0;
+}`,["while","*","product"]),
+
+e(30,2,4,"כמה ספרות במספר",
+"קלוט מספר שלם חיובי והדפס כמה ספרות יש בו.",
+"12345","5",
+["חלוקה שלמה ב-10 'מוחקת' את ספרת האחדות: 123 / 10 = 12","ספור כמה פעמים אפשר לחלק ב-10 עד שהמספר נהיה 0."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n, count = 0;
+    cin >> n;
+    if (n == 0)
+        count = 1;
+    while (n > 0) {
+        count++;
+        n = n / 10;
+    }
+    cout << count << endl;
+    return 0;
+}`,["while","/ 10","count"]),
+
+e(31,2,4,"סכום ספרות",
+"קלוט מספר שלם חיובי והדפס את סכום הספרות שלו.",
+"123","6",
+["n % 10 נותן את ספרת האחדות של המספר.","בכל סיבוב: הוסף n % 10 לסכום, ואז n = n / 10."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n, sum = 0;
+    cin >> n;
+    while (n > 0) {
+        sum = sum + n % 10;
+        n = n / 10;
+    }
+    cout << sum << endl;
+    return 0;
+}`,["while","% 10","sum"]),
+
+e(32,2,4,"מכפלת ספרות",
+"קלוט מספר שלם חיובי והדפס את מכפלת הספרות שלו.",
+"234","24",
+["כמו סכום ספרות, אבל עם כפל.","המשתנה הצובר מתחיל מ-1: product = product * (n % 10);"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n, product = 1;
+    cin >> n;
+    while (n > 0) {
+        product = product * (n % 10);
+        n = n / 10;
+    }
+    cout << product << endl;
+    return 0;
+}`,["while","% 10","*"]),
+
+e(33,2,5,"הספרה הגדולה ביותר",
+"קלוט מספר שלם חיובי והדפס את הספרה הגדולה ביותר שבו.",
+"3947","9",
+["עבור על הספרות עם % 10 ו- / 10 ושמור את הגדולה שראית.","התחל עם max = 0 ובכל ספרה בדוק: if (digit > max) max = digit;"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n, digit, max = 0;
+    cin >> n;
+    while (n > 0) {
+        digit = n % 10;
+        if (digit > max)
+            max = digit;
+        n = n / 10;
+    }
+    cout << max << endl;
+    return 0;
+}`,["while","% 10","if"]),
+
+e(34,2,5,"הספרה הקטנה ביותר",
+"קלוט מספר שלם חיובי והדפס את הספרה הקטנה ביותר שבו.",
+"3947","3",
+["כמו הקודם, אבל הפעם מחפשים מינימום.","התחל עם min = 9 (הספרה הגדולה האפשרית) ועדכן כלפי מטה."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n, digit, min = 9;
+    cin >> n;
+    while (n > 0) {
+        digit = n % 10;
+        if (digit < min)
+            min = digit;
+        n = n / 10;
+    }
+    cout << min << endl;
+    return 0;
+}`,["while","% 10","if"]),
+
+e(35,2,5,"היפוך מספר",
+"קלוט מספר שלם חיובי והדפס אותו הפוך. לדוגמה 123 יהפוך ל-321.",
+"123","321",
+["בונים מספר חדש: בכל שלב מזיזים אותו שמאלה (כפול 10) ומוסיפים ספרה.","הנוסחה: rev = rev * 10 + n % 10; ואז n = n / 10;"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n, rev = 0;
+    cin >> n;
+    while (n > 0) {
+        rev = rev * 10 + n % 10;
+        n = n / 10;
+    }
+    cout << rev << endl;
+    return 0;
+}`,["while","rev","% 10"]),
+
+e(36,2,6,"מספר פלינדרום",
+"קלוט מספר והדפס Yes אם הוא פלינדרום (נקרא אותו דבר משני הכיוונים, כמו 121), אחרת No.",
+"121","Yes",
+["שמור את המספר המקורי במשתנה נוסף לפני שהופכים אותו.","הפוך את המספר (כמו בתרגיל הקודם) והשווה למקור."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n, original, rev = 0;
+    cin >> n;
+    original = n;
+    while (n > 0) {
+        rev = rev * 10 + n % 10;
+        n = n / 10;
+    }
+    if (rev == original)
+        cout << "Yes" << endl;
+    else
+        cout << "No" << endl;
+    return 0;
+}`,["while","rev","=="]),
+
+e(37,2,5,"ספירת ספרות זוגיות",
+"קלוט מספר שלם חיובי והדפס כמה ספרות זוגיות יש בו.",
+"2468","4",
+["הפרד כל ספרה עם % 10 ובדוק אם היא זוגית.","התנאי לספרה זוגית: digit % 2 == 0"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n, digit, count = 0;
+    cin >> n;
+    while (n > 0) {
+        digit = n % 10;
+        if (digit % 2 == 0)
+            count++;
+        n = n / 10;
+    }
+    cout << count << endl;
+    return 0;
+}`,["while","% 2","count"]),
+
+e(38,2,5,"ספירת ספרות אי-זוגיות",
+"קלוט מספר שלם חיובי והדפס כמה ספרות אי-זוגיות יש בו.",
+"1234","2",
+["בדיוק כמו התרגיל הקודם, עם תנאי הפוך.","התנאי: digit % 2 != 0 (או == 1)."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n, digit, count = 0;
+    cin >> n;
+    while (n > 0) {
+        digit = n % 10;
+        if (digit % 2 != 0)
+            count++;
+        n = n / 10;
+    }
+    cout << count << endl;
+    return 0;
+}`,["while","% 2","count"]),
+
+e(39,2,5,"סכום הספרות הזוגיות",
+"קלוט מספר שלם חיובי והדפס את סכום הספרות הזוגיות בלבד.",
+"1234","6",
+["שלב בין 'סכום ספרות' ל'ספירת זוגיות'.","הוסף לסכום רק כאשר digit % 2 == 0."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n, digit, sum = 0;
+    cin >> n;
+    while (n > 0) {
+        digit = n % 10;
+        if (digit % 2 == 0)
+            sum = sum + digit;
+        n = n / 10;
+    }
+    cout << sum << endl;
+    return 0;
+}`,["while","% 2","sum"]),
+
+e(40,2,5,"סכום הספרות האי-זוגיות",
+"קלוט מספר שלם חיובי והדפס את סכום הספרות האי-זוגיות בלבד.",
+"1234","4",
+["כמו התרגיל הקודם עם תנאי הפוך.","הוסף לסכום רק כאשר digit % 2 != 0."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n, digit, sum = 0;
+    cin >> n;
+    while (n > 0) {
+        digit = n % 10;
+        if (digit % 2 != 0)
+            sum = sum + digit;
+        n = n / 10;
+    }
+    cout << sum << endl;
+    return 0;
+}`,["while","% 2","sum"])
+);
+
+/* ===== שלב 4: for (41-55) ===== */
+EX.push(
+e(41,3,4,"לוח הכפל של מספר",
+"קלוט מספר N והדפס את לוח הכפל שלו מ-1 עד 10, כל תרגיל בשורה נפרדת בפורמט: N x i = תוצאה",
+"3","3 x 1 = 3\n3 x 2 = 6\n...\n3 x 10 = 30",
+["מבנה לולאת for: for (int i = 1; i <= 10; i++)","בכל סיבוב הדפס: n << \" x \" << i << \" = \" << n * i"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    for (int i = 1; i <= 10; i++) {
+        cout << n << " x " << i << " = " << n * i << endl;
+    }
+    return 0;
+}`,["for","*","<="]),
+
+e(42,3,4,"כל הזוגיים עד N",
+"קלוט מספר N והדפס את כל המספרים הזוגיים מ-2 עד N.",
+"10","2 4 6 8 10",
+["אפשר להתחיל מ-2 ולקפוץ ב-2 בכל פעם.","for (int i = 2; i <= n; i += 2)"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    for (int i = 2; i <= n; i += 2) {
+        cout << i << " ";
+    }
+    cout << endl;
+    return 0;
+}`,["for","+= 2","<="]),
+
+e(43,3,4,"כל האי-זוגיים עד N",
+"קלוט מספר N והדפס את כל המספרים האי-זוגיים מ-1 עד N.",
+"10","1 3 5 7 9",
+["כמו הזוגיים, רק שמתחילים מ-1.","for (int i = 1; i <= n; i += 2)"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n; i += 2) {
+        cout << i << " ";
+    }
+    cout << endl;
+    return 0;
+}`,["for","+= 2","<="]),
+
+e(44,3,4,"סכום הזוגיים עד N",
+"קלוט מספר N והדפס את סכום כל המספרים הזוגיים מ-2 עד N.",
+"10","30",
+["שלב לולאת for עם משתנה צובר sum.","קפוץ ב-2 והוסף כל מספר לסכום."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n, sum = 0;
+    cin >> n;
+    for (int i = 2; i <= n; i += 2) {
+        sum = sum + i;
+    }
+    cout << sum << endl;
+    return 0;
+}`,["for","sum","+= 2"]),
+
+e(45,3,4,"סכום האי-זוגיים עד N",
+"קלוט מספר N והדפס את סכום כל המספרים האי-זוגיים מ-1 עד N.",
+"10","25",
+["כמו התרגיל הקודם, רק מתחילים מ-1.","for (int i = 1; i <= n; i += 2) ובפנים sum += i;"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n, sum = 0;
+    cin >> n;
+    for (int i = 1; i <= n; i += 2) {
+        sum = sum + i;
+    }
+    cout << sum << endl;
+    return 0;
+}`,["for","sum","+= 2"]),
+
+e(46,3,5,"עצרת (N!)",
+"קלוט מספר N והדפס את N! — המכפלה של כל המספרים מ-1 עד N. לדוגמה: 5! = 120",
+"5","120",
+["משתנה צובר של כפל מתחיל מ-1.","עבור מספרים גדולים כדאי להשתמש ב-long long במקום int."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    long long factorial = 1;
+    cin >> n;
+    for (int i = 1; i <= n; i++) {
+        factorial = factorial * i;
+    }
+    cout << factorial << endl;
+    return 0;
+}`,["for","factorial","*"]),
+
+e(47,3,5,"חזקה",
+"קלוט בסיס ומעריך (שלם וחיובי) והדפס את תוצאת החזקה. לדוגמה: 2 בחזקת 5 = 32. אסור להשתמש בפונקציית pow!",
+"2 5","32",
+["חזקה היא כפל חוזר: 2^5 = 2*2*2*2*2","הכפל את התוצאה בבסיס, מספר פעמים כמספר המעריך."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int base, exp;
+    long long result = 1;
+    cin >> base >> exp;
+    for (int i = 1; i <= exp; i++) {
+        result = result * base;
+    }
+    cout << result << endl;
+    return 0;
+}`,["for","result","*"]),
+
+e(48,3,5,"כל המחלקים של מספר",
+"קלוט מספר והדפס את כל המחלקים שלו. לדוגמה למספר 12: 1 2 3 4 6 12",
+"12","1 2 3 4 6 12",
+["עבור על כל המספרים מ-1 עד n ובדוק מי מחלק.","i הוא מחלק של n אם n % i == 0"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n; i++) {
+        if (n % i == 0)
+            cout << i << " ";
+    }
+    cout << endl;
+    return 0;
+}`,["for","%","if"]),
+
+e(49,3,6,"האם ראשוני",
+"קלוט מספר והדפס Prime אם הוא ראשוני (מתחלק רק ב-1 ובעצמו), אחרת Not prime.",
+"13","Prime",
+["ספור כמה מחלקים יש למספר, או השתמש במשתנה דגל (flag).","אם מצאת מחלק בין 2 ל-n-1, המספר אינו ראשוני. זכור: 1 אינו ראשוני."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    bool isPrime = true;
+    cin >> n;
+    if (n < 2)
+        isPrime = false;
+    for (int i = 2; i < n; i++) {
+        if (n % i == 0) {
+            isPrime = false;
+            break;
+        }
+    }
+    if (isPrime)
+        cout << "Prime" << endl;
+    else
+        cout << "Not prime" << endl;
+    return 0;
+}`,["for","bool","%"]),
+
+e(50,3,6,"כל הראשוניים עד N",
+"קלוט מספר N והדפס את כל המספרים הראשוניים מ-2 עד N.",
+"20","2 3 5 7 11 13 17 19",
+["לכל מספר מ-2 עד N, בדוק אם הוא ראשוני (לולאה בתוך לולאה).","אפס את משתנה הדגל isPrime בתחילת כל בדיקה של מספר חדש."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    for (int num = 2; num <= n; num++) {
+        bool isPrime = true;
+        for (int i = 2; i < num; i++) {
+            if (num % i == 0) {
+                isPrime = false;
+                break;
+            }
+        }
+        if (isPrime)
+            cout << num << " ";
+    }
+    cout << endl;
+    return 0;
+}`,["for","bool","%"]),
+
+e(51,3,7,"מספרים מושלמים",
+"קלוט מספר N והדפס את כל המספרים המושלמים עד N. מספר מושלם שווה לסכום מחלקיו (בלי עצמו). לדוגמה: 6 = 1+2+3",
+"100","6 28",
+["לכל מספר, חשב את סכום המחלקים שלו (בלי המספר עצמו).","אם sum == num, זהו מספר מושלם."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    for (int num = 2; num <= n; num++) {
+        int sum = 0;
+        for (int i = 1; i < num; i++) {
+            if (num % i == 0)
+                sum = sum + i;
+        }
+        if (sum == num)
+            cout << num << " ";
+    }
+    cout << endl;
+    return 0;
+}`,["for","sum","=="]),
+
+e(52,3,7,"מספרי ארמסטרונג",
+"הדפס את כל מספרי הארמסטרונג התלת-ספרתיים (100-999). מספר ארמסטרונג שווה לסכום הספרות שלו כשכל אחת בחזקת 3. לדוגמה: 153 = 1³+5³+3³",
+"(אין קלט)","153 370 371 407",
+["הפרד את שלוש הספרות עם / ו-%.","בדוק אם d1*d1*d1 + d2*d2*d2 + d3*d3*d3 שווה למספר."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    for (int num = 100; num <= 999; num++) {
+        int d1 = num / 100;
+        int d2 = (num / 10) % 10;
+        int d3 = num % 10;
+        if (d1*d1*d1 + d2*d2*d2 + d3*d3*d3 == num)
+            cout << num << " ";
+    }
+    cout << endl;
+    return 0;
+}`,["for","%","=="]),
+
+e(53,3,5,"סכום סדרה",
+"קלוט מספר N והדפס את סכום הסדרה: 1² + 2² + 3² + ... + N²",
+"4","30",
+["בכל סיבוב הוסף לסכום את i * i.","עבור N=4: 1+4+9+16 = 30"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n, sum = 0;
+    cin >> n;
+    for (int i = 1; i <= n; i++) {
+        sum = sum + i * i;
+    }
+    cout << sum << endl;
+    return 0;
+}`,["for","sum","i * i"]),
+
+e(54,3,5,"ממוצע של N מספרים",
+"קלוט מספר N, לאחר מכן קלוט N מספרים והדפס את הממוצע שלהם.",
+"4\n10 20 30 40","25",
+["קלוט את כל המספרים בלולאה וצבור את הסכום.","הממוצע = הסכום חלקי N. השתמש ב-double כדי לא לאבד את השבר: (double)sum / n"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n, x, sum = 0;
+    cin >> n;
+    for (int i = 0; i < n; i++) {
+        cin >> x;
+        sum = sum + x;
+    }
+    cout << (double)sum / n << endl;
+    return 0;
+}`,["for","sum","double"]),
+
+e(55,3,5,"הגדול מבין N מספרים",
+"קלוט מספר N, לאחר מכן קלוט N מספרים והדפס את הגדול ביותר.",
+"5\n3 9 1 7 5","9",
+["שמור את המספר הראשון בתור מקסימום זמני, והשווה אליו את השאר.","בכל קלט חדש: if (x > max) max = x;"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n, x, max;
+    cin >> n;
+    cin >> max;
+    for (int i = 1; i < n; i++) {
+        cin >> x;
+        if (x > max)
+            max = x;
+    }
+    cout << max << endl;
+    return 0;
+}`,["for","if",">"]),
+
+/* ===== שלב 5: לולאות מקוננות (56-70) ===== */
+e(56,4,5,"ריבוע כוכביות",
+"קלוט מספר N והדפס ריבוע של כוכביות בגודל N על N.",
+"3","***\n***\n***",
+["לולאה חיצונית לשורות, לולאה פנימית לעמודות.","אחרי הלולאה הפנימית הדפס endl כדי לרדת שורה."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            cout << "*";
+        }
+        cout << endl;
+    }
+    return 0;
+}`,["for","*","endl"]),
+
+e(57,4,5,"מלבן כוכביות",
+"קלוט רוחב וגובה והדפס מלבן של כוכביות.",
+"5 3","*****\n*****\n*****",
+["כמו הריבוע, אבל עם שני גדלים שונים.","הלולאה החיצונית רצה height פעמים, הפנימית width פעמים."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int width, height;
+    cin >> width >> height;
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            cout << "*";
+        }
+        cout << endl;
+    }
+    return 0;
+}`,["for","*","endl"]),
+
+e(58,4,5,"משולש ישר",
+"קלוט מספר N והדפס משולש כוכביות: שורה ראשונה כוכבית אחת, שנייה שתיים, וכן הלאה עד N.",
+"4","*\n**\n***\n****",
+["מספר הכוכביות בכל שורה שווה למספר השורה.","הלולאה הפנימית רצה מ-1 עד i (מספר השורה הנוכחית)."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= i; j++) {
+            cout << "*";
+        }
+        cout << endl;
+    }
+    return 0;
+}`,["for","<= i","endl"]),
+
+e(59,4,5,"משולש הפוך",
+"קלוט מספר N והדפס משולש הפוך: שורה ראשונה N כוכביות, ואז פחות ופחות עד 1.",
+"4","****\n***\n**\n*",
+["הפעם הלולאה החיצונית יורדת מ-N ל-1.","for (int i = n; i >= 1; i--) והפנימית עד i."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    for (int i = n; i >= 1; i--) {
+        for (int j = 1; j <= i; j++) {
+            cout << "*";
+        }
+        cout << endl;
+    }
+    return 0;
+}`,["for","i--","endl"]),
+
+e(60,4,6,"פירמידה",
+"קלוט מספר N והדפס פירמידה ממורכזת בגובה N שורות.",
+"3","  *\n ***\n*****",
+["כל שורה מורכבת מרווחים ואז כוכביות: בשורה i יש n-i רווחים ו-2i-1 כוכביות.","שתי לולאות פנימיות: אחת לרווחים ואחת לכוכביות."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 0; j < n - i; j++) {
+            cout << " ";
+        }
+        for (int j = 0; j < 2 * i - 1; j++) {
+            cout << "*";
+        }
+        cout << endl;
+    }
+    return 0;
+}`,["for","\" \"","*"]),
+
+e(61,4,6,"פירמידה הפוכה",
+"קלוט מספר N והדפס פירמידה הפוכה: מתחילה רחבה ומצטמצמת לקודקוד.",
+"3","*****\n ***\n  *",
+["כמו פירמידה רגילה אבל הלולאה החיצונית יורדת.","בשורה i (מ-n עד 1): n-i רווחים ו-2i-1 כוכביות."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    for (int i = n; i >= 1; i--) {
+        for (int j = 0; j < n - i; j++) {
+            cout << " ";
+        }
+        for (int j = 0; j < 2 * i - 1; j++) {
+            cout << "*";
+        }
+        cout << endl;
+    }
+    return 0;
+}`,["for","i--","*"]),
+
+e(62,4,7,"יהלום",
+"קלוט מספר N והדפס יהלום: פירמידה בגובה N ומתחתיה פירמידה הפוכה בגובה N-1.",
+"3","  *\n ***\n*****\n ***\n  *",
+["שלב את שני התרגילים הקודמים זה אחרי זה.","החלק העליון: i מ-1 עד n. החלק התחתון: i מ-n-1 עד 1."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 0; j < n - i; j++)
+            cout << " ";
+        for (int j = 0; j < 2 * i - 1; j++)
+            cout << "*";
+        cout << endl;
+    }
+    for (int i = n - 1; i >= 1; i--) {
+        for (int j = 0; j < n - i; j++)
+            cout << " ";
+        for (int j = 0; j < 2 * i - 1; j++)
+            cout << "*";
+        cout << endl;
+    }
+    return 0;
+}`,["for","i--","*"]),
+
+e(63,4,6,"לוח כפל מלא",
+"הדפס לוח כפל מלא של 10 על 10: בכל שורה i הדפס את המכפלות i*1 עד i*10 מופרדות ברווח.",
+"(אין קלט)","1 2 3 ... 10\n2 4 6 ... 20\n...\n10 20 30 ... 100",
+["שתי לולאות מ-1 עד 10, והדפסת i * j.","אל תשכח endl אחרי כל שורה (אחרי הלולאה הפנימית)."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    for (int i = 1; i <= 10; i++) {
+        for (int j = 1; j <= 10; j++) {
+            cout << i * j << " ";
+        }
+        cout << endl;
+    }
+    return 0;
+}`,["for","i * j","endl"]),
+
+e(64,4,6,"טבלת חזקות",
+"לכל מספר מ-1 עד 5 הדפס בשורה אחת את המספר, הריבוע שלו והמעוקב שלו, מופרדים ברווח.",
+"(אין קלט)","1 1 1\n2 4 8\n3 9 27\n4 16 64\n5 25 125",
+["לכל i הדפס: i, i*i, i*i*i","אפשר גם עם לולאה פנימית שמכפילה שוב ושוב — תרגול נחמד לחזקות."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    for (int i = 1; i <= 5; i++) {
+        cout << i << " " << i * i << " " << i * i * i << endl;
+    }
+    return 0;
+}`,["for","i * i","endl"]),
+
+e(65,4,6,"טבלת ASCII",
+"הדפס את אותיות ה-ABC הגדולות (A עד Z) ולצד כל אות את קוד ה-ASCII שלה.",
+"(אין קלט)","A 65\nB 66\nC 67\n...\nZ 90",
+["אפשר לרוץ עם משתנה char: for (char c = 'A'; c <= 'Z'; c++)","כדי להדפיס את הקוד המספרי, המר את התו ל-int: (int)c"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    for (char c = 'A'; c <= 'Z'; c++) {
+        cout << c << " " << (int)c << endl;
+    }
+    return 0;
+}`,["for","char","(int)"]),
+
+e(66,4,6,"דפוס מספרים",
+"קלוט מספר N והדפס N שורות: בשורה מספר i הדפס את המספרים מ-1 עד i צמודים.",
+"4","1\n12\n123\n1234",
+["הלולאה הפנימית מדפיסה את j עצמו, לא כוכבית.","for (int j = 1; j <= i; j++) cout << j;"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= i; j++) {
+            cout << j;
+        }
+        cout << endl;
+    }
+    return 0;
+}`,["for","<< j","endl"]),
+
+e(67,4,7,"דפוס אותיות",
+"קלוט מספר N (עד 26) והדפס N שורות: בשורה i הדפס את האותיות מ-A צמודות, i אותיות.",
+"4","A\nAB\nABC\nABCD",
+["אפשר לחבר מספר לאות: 'A' + 1 נותן B.","בלולאה הפנימית הדפס (char)('A' + j) עבור j מ-0 עד i-1."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 0; j < i; j++) {
+            cout << (char)('A' + j);
+        }
+        cout << endl;
+    }
+    return 0;
+}`,["for","char","'A'"]),
+
+e(68,4,7,"לוח כפל בלי כפילויות",
+"הדפס את כל תרגילי הכפל מ-1 עד 10 בלי כפילויות: אם הדפסת 2 x 3 אל תדפיס גם 3 x 2. כל תרגיל בשורה: i x j = תוצאה",
+"(אין קלט)","1 x 1 = 1\n1 x 2 = 2\n...\n10 x 10 = 100",
+["הסוד הוא בנקודת ההתחלה של הלולאה הפנימית.","התחל את j מ-i במקום מ-1: for (int j = i; j <= 10; j++)"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    for (int i = 1; i <= 10; i++) {
+        for (int j = i; j <= 10; j++) {
+            cout << i << " x " << j << " = " << i * j << endl;
+        }
+    }
+    return 0;
+}`,["for","j = i","*"]),
+
+e(69,4,6,"כל זוגות המספרים",
+"קלוט מספר N והדפס את כל הזוגות (i,j) כאשר i ו-j רצים מ-1 עד N.",
+"2","(1,1) (1,2) (2,1) (2,2)",
+["שתי לולאות מקוננות שרצות מ-1 עד N.","הדפס: \"(\" << i << \",\" << j << \") \""],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            cout << "(" << i << "," << j << ") ";
+        }
+    }
+    cout << endl;
+    return 0;
+}`,["for","(",")"]),
+
+e(70,4,7,"משחק ניחוש",
+"כתוב משחק: המחשב 'בוחר' מספר סודי (קבוע בקוד, למשל 42). המשתמש מנחש שוב ושוב, ובכל פעם התוכנית מדפיסה Too high או Too low, עד שמנחשים נכון ואז מדפיסה כמה ניסיונות היו.",
+"50\n30\n42","Too high\nToo low\nCorrect! 3 tries",
+["השתמש בלולאת do-while: קודם מנחשים, ואז בודקים אם להמשיך.","ספור ניסיונות עם משתנה count שגדל בכל סיבוב."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int secret = 42, guess, tries = 0;
+    do {
+        cin >> guess;
+        tries++;
+        if (guess > secret)
+            cout << "Too high" << endl;
+        else if (guess < secret)
+            cout << "Too low" << endl;
+    } while (guess != secret);
+    cout << "Correct! " << tries << " tries" << endl;
+    return 0;
+}`,["do","while","!="])
+);
+
+/* ===== שלב 6: פונקציות (71-85) ===== */
+EX.push(
+e(71,5,5,"פונקציית max",
+"כתוב פונקציה בשם max2 שמקבלת שני מספרים שלמים ומחזירה את הגדול מביניהם. ב-main קלוט שני מספרים והדפס את התוצאה.",
+"4 9","9",
+["מבנה פונקציה: int max2(int a, int b) { ... return ...; }","הפונקציה מוגדרת מעל main, וב-main קוראים לה: cout << max2(a, b);"],
+`#include <iostream>
+using namespace std;
+
+int max2(int a, int b) {
+    if (a > b)
+        return a;
+    return b;
+}
+
+int main() {
+    int a, b;
+    cin >> a >> b;
+    cout << max2(a, b) << endl;
+    return 0;
+}`,["int max2","return","("]),
+
+e(72,5,5,"פונקציית min",
+"כתוב פונקציה בשם min2 שמקבלת שני מספרים ומחזירה את הקטן מביניהם. ב-main קלוט שני מספרים והדפס את התוצאה.",
+"4 9","4",
+["בדיוק כמו max2 אבל עם תנאי הפוך.","if (a < b) return a; return b;"],
+`#include <iostream>
+using namespace std;
+
+int min2(int a, int b) {
+    if (a < b)
+        return a;
+    return b;
+}
+
+int main() {
+    int a, b;
+    cin >> a >> b;
+    cout << min2(a, b) << endl;
+    return 0;
+}`,["int min2","return","("]),
+
+e(73,5,5,"פונקציית isEven",
+"כתוב פונקציה בשם isEven שמקבלת מספר ומחזירה true אם הוא זוגי. ב-main קלוט מספר והדפס Even או Odd בעזרת הפונקציה.",
+"8","Even",
+["טיפוס הערך המוחזר הוא bool: bool isEven(int n)","אפשר להחזיר ישירות את תוצאת התנאי: return n % 2 == 0;"],
+`#include <iostream>
+using namespace std;
+
+bool isEven(int n) {
+    return n % 2 == 0;
+}
+
+int main() {
+    int n;
+    cin >> n;
+    if (isEven(n))
+        cout << "Even" << endl;
+    else
+        cout << "Odd" << endl;
+    return 0;
+}`,["bool","isEven","return"]),
+
+e(74,5,6,"פונקציית isPrime",
+"כתוב פונקציה בשם isPrime שמקבלת מספר ומחזירה true אם הוא ראשוני. ב-main קלוט מספר והדפס Prime או Not prime.",
+"13","Prime",
+["העבר את הלוגיקה מתרגיל 49 לתוך פונקציה שמחזירה bool.","אם מצאת מחלק — אפשר מיד return false; בסוף הלולאה return true;"],
+`#include <iostream>
+using namespace std;
+
+bool isPrime(int n) {
+    if (n < 2)
+        return false;
+    for (int i = 2; i < n; i++) {
+        if (n % i == 0)
+            return false;
+    }
+    return true;
+}
+
+int main() {
+    int n;
+    cin >> n;
+    if (isPrime(n))
+        cout << "Prime" << endl;
+    else
+        cout << "Not prime" << endl;
+    return 0;
+}`,["bool","isPrime","return"]),
+
+e(75,5,6,"פונקציית factorial",
+"כתוב פונקציה בשם factorial שמקבלת מספר ומחזירה את העצרת שלו. ב-main קלוט מספר והדפס את התוצאה.",
+"5","120",
+["הפונקציה מחזירה long long כדי להכיל מספרים גדולים.","בתוך הפונקציה: לולאה שמכפילה מ-1 עד n, ואז return."],
+`#include <iostream>
+using namespace std;
+
+long long factorial(int n) {
+    long long result = 1;
+    for (int i = 1; i <= n; i++) {
+        result = result * i;
+    }
+    return result;
+}
+
+int main() {
+    int n;
+    cin >> n;
+    cout << factorial(n) << endl;
+    return 0;
+}`,["factorial","return","for"]),
+
+e(76,5,6,"פונקציית power",
+"כתוב פונקציה בשם power שמקבלת בסיס ומעריך ומחזירה את תוצאת החזקה (בלי pow!). ב-main קלוט שניים והדפס את התוצאה.",
+"2 10","1024",
+["הפונקציה מקבלת שני פרמטרים: power(int base, int exp)","לולאה שמכפילה את result בבסיס exp פעמים."],
+`#include <iostream>
+using namespace std;
+
+long long power(int base, int exp) {
+    long long result = 1;
+    for (int i = 0; i < exp; i++) {
+        result = result * base;
+    }
+    return result;
+}
+
+int main() {
+    int base, exp;
+    cin >> base >> exp;
+    cout << power(base, exp) << endl;
+    return 0;
+}`,["power","return","for"]),
+
+e(77,5,6,"פונקציית sumDigits",
+"כתוב פונקציה בשם sumDigits שמקבלת מספר ומחזירה את סכום ספרותיו. ב-main קלוט מספר והדפס את התוצאה.",
+"456","15",
+["העבר את הלוגיקה מתרגיל 31 לפונקציה.","שים לב: הפרמטר n הוא עותק, מותר לשנות אותו בתוך הפונקציה."],
+`#include <iostream>
+using namespace std;
+
+int sumDigits(int n) {
+    int sum = 0;
+    while (n > 0) {
+        sum = sum + n % 10;
+        n = n / 10;
+    }
+    return sum;
+}
+
+int main() {
+    int n;
+    cin >> n;
+    cout << sumDigits(n) << endl;
+    return 0;
+}`,["sumDigits","while","return"]),
+
+e(78,5,6,"פונקציית reverseNumber",
+"כתוב פונקציה בשם reverseNumber שמקבלת מספר ומחזירה אותו הפוך. ב-main קלוט מספר והדפס את התוצאה.",
+"1234","4321",
+["העבר את הלוגיקה מתרגיל 35 לפונקציה.","rev = rev * 10 + n % 10; בתוך לולאת while, ובסוף return rev;"],
+`#include <iostream>
+using namespace std;
+
+int reverseNumber(int n) {
+    int rev = 0;
+    while (n > 0) {
+        rev = rev * 10 + n % 10;
+        n = n / 10;
+    }
+    return rev;
+}
+
+int main() {
+    int n;
+    cin >> n;
+    cout << reverseNumber(n) << endl;
+    return 0;
+}`,["reverseNumber","while","return"]),
+
+e(79,5,6,"פונקציית countDigits",
+"כתוב פונקציה בשם countDigits שמקבלת מספר ומחזירה כמה ספרות יש בו. ב-main קלוט מספר והדפס את התוצאה.",
+"98765","5",
+["העבר את הלוגיקה מתרגיל 30 לפונקציה.","אל תשכח את המקרה המיוחד של 0 — יש בו ספרה אחת."],
+`#include <iostream>
+using namespace std;
+
+int countDigits(int n) {
+    if (n == 0)
+        return 1;
+    int count = 0;
+    while (n > 0) {
+        count++;
+        n = n / 10;
+    }
+    return count;
+}
+
+int main() {
+    int n;
+    cin >> n;
+    cout << countDigits(n) << endl;
+    return 0;
+}`,["countDigits","while","return"]),
+
+e(80,5,7,"פונקציית isPalindrome",
+"כתוב פונקציה בשם isPalindrome שמקבלת מספר ומחזירה true אם הוא פלינדרום. השתמש בפונקציה reverseNumber שכבר כתבת! ב-main קלוט מספר והדפס Yes או No.",
+"12321","Yes",
+["פונקציה יכולה לקרוא לפונקציה אחרת!","return reverseNumber(n) == n;"],
+`#include <iostream>
+using namespace std;
+
+int reverseNumber(int n) {
+    int rev = 0;
+    while (n > 0) {
+        rev = rev * 10 + n % 10;
+        n = n / 10;
+    }
+    return rev;
+}
+
+bool isPalindrome(int n) {
+    return reverseNumber(n) == n;
+}
+
+int main() {
+    int n;
+    cin >> n;
+    if (isPalindrome(n))
+        cout << "Yes" << endl;
+    else
+        cout << "No" << endl;
+    return 0;
+}`,["isPalindrome","bool","return"]),
+
+e(81,5,7,"פונקציית isPerfect",
+"כתוב פונקציה בשם isPerfect שמקבלת מספר ומחזירה true אם הוא מספר מושלם (שווה לסכום מחלקיו בלי עצמו). ב-main קלוט מספר והדפס Perfect או Not perfect.",
+"28","Perfect",
+["חשב בלולאה את סכום המחלקים מ-1 עד n-1.","בסוף: return sum == n;"],
+`#include <iostream>
+using namespace std;
+
+bool isPerfect(int n) {
+    int sum = 0;
+    for (int i = 1; i < n; i++) {
+        if (n % i == 0)
+            sum = sum + i;
+    }
+    return sum == n;
+}
+
+int main() {
+    int n;
+    cin >> n;
+    if (isPerfect(n))
+        cout << "Perfect" << endl;
+    else
+        cout << "Not perfect" << endl;
+    return 0;
+}`,["isPerfect","bool","return"]),
+
+e(82,5,7,"פונקציית gcd",
+"כתוב פונקציה בשם gcd שמקבלת שני מספרים ומחזירה את המחלק המשותף הגדול ביותר שלהם (אלגוריתם אוקלידס).",
+"12 18","6",
+["אלגוריתם אוקלידס: כל עוד b אינו 0, שמור את b, חשב a % b לתוך b, ושים את הערך השמור ב-a.","while (b != 0) { int temp = b; b = a % b; a = temp; } ואז return a;"],
+`#include <iostream>
+using namespace std;
+
+int gcd(int a, int b) {
+    while (b != 0) {
+        int temp = b;
+        b = a % b;
+        a = temp;
+    }
+    return a;
+}
+
+int main() {
+    int a, b;
+    cin >> a >> b;
+    cout << gcd(a, b) << endl;
+    return 0;
+}`,["gcd","while","%"]),
+
+e(83,5,7,"פונקציית lcm",
+"כתוב פונקציה בשם lcm שמקבלת שני מספרים ומחזירה את הכפולה המשותפת הקטנה ביותר. רמז: השתמש ב-gcd!",
+"4 6","12",
+["נוסחה: lcm(a,b) = a * b / gcd(a,b)","כתוב קודם את פונקציית gcd ואז את lcm שמשתמשת בה."],
+`#include <iostream>
+using namespace std;
+
+int gcd(int a, int b) {
+    while (b != 0) {
+        int temp = b;
+        b = a % b;
+        a = temp;
+    }
+    return a;
+}
+
+int lcm(int a, int b) {
+    return a / gcd(a, b) * b;
+}
+
+int main() {
+    int a, b;
+    cin >> a >> b;
+    cout << lcm(a, b) << endl;
+    return 0;
+}`,["lcm","gcd","return"]),
+
+e(84,5,6,"פונקציית average",
+"כתוב פונקציה בשם average שמקבלת שלושה מספרים שלמים ומחזירה את הממוצע שלהם כ-double.",
+"4 7 10","7",
+["הפונקציה מחזירה double: double average(int a, int b, int c)","זהירות מחלוקת שלמים! השתמש ב: (a + b + c) / 3.0"],
+`#include <iostream>
+using namespace std;
+
+double average(int a, int b, int c) {
+    return (a + b + c) / 3.0;
+}
+
+int main() {
+    int a, b, c;
+    cin >> a >> b >> c;
+    cout << average(a, b, c) << endl;
+    return 0;
+}`,["average","double","return"]),
+
+e(85,5,5,"פונקציית absoluteValue",
+"כתוב פונקציה בשם absoluteValue שמקבלת מספר ומחזירה את הערך המוחלט שלו (בלי abs של הספרייה).",
+"-7","7",
+["ערך מוחלט: אם המספר שלילי, החזר אותו עם מינוס לפניו.","if (n < 0) return -n; return n;"],
+`#include <iostream>
+using namespace std;
+
+int absoluteValue(int n) {
+    if (n < 0)
+        return -n;
+    return n;
+}
+
+int main() {
+    int n;
+    cin >> n;
+    cout << absoluteValue(n) << endl;
+    return 0;
+}`,["absoluteValue","return","if"]),
+
+/* ===== שלב 7: מערכים (86-100) ===== */
+e(86,6,6,"קליטת 10 מספרים למערך",
+"הגדר מערך בגודל 10, קלוט אליו 10 מספרים והדפס אישור: Done",
+"1 2 3 4 5 6 7 8 9 10","Done",
+["הגדרת מערך: int arr[10];","קליטה בלולאה: for (int i = 0; i < 10; i++) cin >> arr[i];"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int arr[10];
+    for (int i = 0; i < 10; i++) {
+        cin >> arr[i];
+    }
+    cout << "Done" << endl;
+    return 0;
+}`,["arr[10]","for","cin"]),
+
+e(87,6,6,"הדפסת מערך",
+"קלוט 10 מספרים למערך והדפס אותם באותו הסדר, מופרדים ברווח.",
+"5 3 8 1 9 2 7 4 6 0","5 3 8 1 9 2 7 4 6 0",
+["צריך שתי לולאות: אחת לקליטה ואחת להדפסה.","גישה לאיבר במערך: arr[i]"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int arr[10];
+    for (int i = 0; i < 10; i++) {
+        cin >> arr[i];
+    }
+    for (int i = 0; i < 10; i++) {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
+    return 0;
+}`,["arr","for","cout"]),
+
+e(88,6,6,"סכום איברי מערך",
+"קלוט 10 מספרים למערך והדפס את סכום כל האיברים.",
+"1 2 3 4 5 6 7 8 9 10","55",
+["עבור על המערך עם לולאה וצבור לתוך sum.","sum = sum + arr[i];"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int arr[10], sum = 0;
+    for (int i = 0; i < 10; i++) {
+        cin >> arr[i];
+    }
+    for (int i = 0; i < 10; i++) {
+        sum = sum + arr[i];
+    }
+    cout << sum << endl;
+    return 0;
+}`,["arr","sum","for"]),
+
+e(89,6,6,"ממוצע איברי מערך",
+"קלוט 10 מספרים למערך והדפס את הממוצע שלהם.",
+"1 2 3 4 5 6 7 8 9 10","5.5",
+["חשב סכום כמו בתרגיל הקודם וחלק ב-10.","כדי לקבל שבר עשרוני: (double)sum / 10"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int arr[10], sum = 0;
+    for (int i = 0; i < 10; i++) {
+        cin >> arr[i];
+        sum = sum + arr[i];
+    }
+    cout << (double)sum / 10 << endl;
+    return 0;
+}`,["arr","double","sum"]),
+
+e(90,6,6,"האיבר הגדול במערך",
+"קלוט 10 מספרים למערך והדפס את הגדול ביותר.",
+"5 3 8 1 9 2 7 4 6 0","9",
+["התחל עם max = arr[0] והשווה לכל שאר האיברים.","if (arr[i] > max) max = arr[i];"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int arr[10];
+    for (int i = 0; i < 10; i++) {
+        cin >> arr[i];
+    }
+    int max = arr[0];
+    for (int i = 1; i < 10; i++) {
+        if (arr[i] > max)
+            max = arr[i];
+    }
+    cout << max << endl;
+    return 0;
+}`,["arr","max","if"]),
+
+e(91,6,6,"האיבר הקטן במערך",
+"קלוט 10 מספרים למערך והדפס את הקטן ביותר.",
+"5 3 8 1 9 2 7 4 6 0","0",
+["כמו מקסימום, רק עם תנאי הפוך.","התחל עם min = arr[0] ועדכן כשמוצאים קטן יותר."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int arr[10];
+    for (int i = 0; i < 10; i++) {
+        cin >> arr[i];
+    }
+    int min = arr[0];
+    for (int i = 1; i < 10; i++) {
+        if (arr[i] < min)
+            min = arr[i];
+    }
+    cout << min << endl;
+    return 0;
+}`,["arr","min","if"]),
+
+e(92,6,6,"כמה זוגיים במערך",
+"קלוט 10 מספרים למערך והדפס כמה מהם זוגיים.",
+"1 2 3 4 5 6 7 8 9 10","5",
+["עבור על המערך וספור עם משתנה count.","התנאי: arr[i] % 2 == 0"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int arr[10], count = 0;
+    for (int i = 0; i < 10; i++) {
+        cin >> arr[i];
+    }
+    for (int i = 0; i < 10; i++) {
+        if (arr[i] % 2 == 0)
+            count++;
+    }
+    cout << count << endl;
+    return 0;
+}`,["arr","% 2","count"]),
+
+e(93,6,6,"כמה אי-זוגיים במערך",
+"קלוט 10 מספרים למערך והדפס כמה מהם אי-זוגיים.",
+"1 2 3 4 5 6 7 8 9 10","5",
+["כמו התרגיל הקודם עם תנאי הפוך.","התנאי: arr[i] % 2 != 0"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int arr[10], count = 0;
+    for (int i = 0; i < 10; i++) {
+        cin >> arr[i];
+    }
+    for (int i = 0; i < 10; i++) {
+        if (arr[i] % 2 != 0)
+            count++;
+    }
+    cout << count << endl;
+    return 0;
+}`,["arr","% 2","count"]),
+
+e(94,6,7,"היפוך מערך",
+"קלוט 10 מספרים למערך, הפוך את סדר האיברים בתוך המערך (בלי מערך נוסף!) והדפס אותו.",
+"1 2 3 4 5 6 7 8 9 10","10 9 8 7 6 5 4 3 2 1",
+["החלף את האיבר הראשון עם האחרון, השני עם הלפני-אחרון וכן הלאה.","לולאה עד חצי המערך: החלף בין arr[i] ל-arr[9 - i] בעזרת temp."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int arr[10];
+    for (int i = 0; i < 10; i++) {
+        cin >> arr[i];
+    }
+    for (int i = 0; i < 5; i++) {
+        int temp = arr[i];
+        arr[i] = arr[9 - i];
+        arr[9 - i] = temp;
+    }
+    for (int i = 0; i < 10; i++) {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
+    return 0;
+}`,["arr","temp","9 - i"]),
+
+e(95,6,7,"חיפוש במערך",
+"קלוט 10 מספרים למערך ואז מספר נוסף לחיפוש. הדפס Found אם הוא נמצא במערך, אחרת Not found.",
+"5 3 8 1 9 2 7 4 6 0\n9","Found",
+["השתמש במשתנה דגל bool שמתחיל כ-false.","אם arr[i] == x הפוך את הדגל ל-true (אפשר גם break)."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int arr[10], x;
+    bool found = false;
+    for (int i = 0; i < 10; i++) {
+        cin >> arr[i];
+    }
+    cin >> x;
+    for (int i = 0; i < 10; i++) {
+        if (arr[i] == x) {
+            found = true;
+            break;
+        }
+    }
+    if (found)
+        cout << "Found" << endl;
+    else
+        cout << "Not found" << endl;
+    return 0;
+}`,["arr","bool","=="]),
+
+e(96,6,7,"מיקום האיבר הגדול",
+"קלוט 10 מספרים למערך והדפס את האינדקס (המיקום, מתחיל מ-0) של האיבר הגדול ביותר.",
+"5 3 8 1 9 2 7 4 6 0","4",
+["במקום לשמור את הערך הגדול, שמור את האינדקס שלו.","if (arr[i] > arr[maxIndex]) maxIndex = i;"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int arr[10];
+    for (int i = 0; i < 10; i++) {
+        cin >> arr[i];
+    }
+    int maxIndex = 0;
+    for (int i = 1; i < 10; i++) {
+        if (arr[i] > arr[maxIndex])
+            maxIndex = i;
+    }
+    cout << maxIndex << endl;
+    return 0;
+}`,["arr","maxIndex","if"]),
+
+e(97,6,6,"העתקת מערך",
+"קלוט 10 מספרים למערך, העתק אותם למערך שני והדפס את המערך השני.",
+"1 2 3 4 5 6 7 8 9 10","1 2 3 4 5 6 7 8 9 10",
+["הגדר שני מערכים: int a[10], b[10];","העתקה איבר-איבר בלולאה: b[i] = a[i];"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int a[10], b[10];
+    for (int i = 0; i < 10; i++) {
+        cin >> a[i];
+    }
+    for (int i = 0; i < 10; i++) {
+        b[i] = a[i];
+    }
+    for (int i = 0; i < 10; i++) {
+        cout << b[i] << " ";
+    }
+    cout << endl;
+    return 0;
+}`,["b[i] = a[i]","for","cout"]),
+
+e(98,6,7,"מיזוג שני מערכים",
+"קלוט 5 מספרים למערך ראשון ו-5 מספרים למערך שני. צור מערך שלישי בגודל 10 שמכיל את שניהם (הראשון ואז השני) והדפס אותו.",
+"1 2 3 4 5\n6 7 8 9 10","1 2 3 4 5 6 7 8 9 10",
+["חמשת האיברים הראשונים של המערך השלישי: c[i] = a[i]","חמשת הבאים: c[i + 5] = b[i]"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int a[5], b[5], c[10];
+    for (int i = 0; i < 5; i++) {
+        cin >> a[i];
+    }
+    for (int i = 0; i < 5; i++) {
+        cin >> b[i];
+    }
+    for (int i = 0; i < 5; i++) {
+        c[i] = a[i];
+        c[i + 5] = b[i];
+    }
+    for (int i = 0; i < 10; i++) {
+        cout << c[i] << " ";
+    }
+    cout << endl;
+    return 0;
+}`,["c[i + 5]","for","cout"]),
+
+e(99,6,8,"מיון בועות (Bubble Sort)",
+"קלוט 10 מספרים למערך, מיין אותם מהקטן לגדול בעזרת מיון בועות והדפס את המערך הממוין. (בלי sort של הספרייה!)",
+"5 3 8 1 9 2 7 4 6 0","0 1 2 3 4 5 6 7 8 9",
+["מיון בועות: עוברים על המערך שוב ושוב ומחליפים כל זוג שכנים שלא בסדר הנכון.","שתי לולאות מקוננות. אם arr[j] > arr[j+1] — החלף אותם עם temp."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int arr[10];
+    for (int i = 0; i < 10; i++) {
+        cin >> arr[i];
+    }
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9 - i; j++) {
+            if (arr[j] > arr[j + 1]) {
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+    for (int i = 0; i < 10; i++) {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
+    return 0;
+}`,["arr[j + 1]","temp","for"]),
+
+e(100,6,8,"המספר השני בגודלו",
+"קלוט 10 מספרים שונים למערך והדפס את המספר השני בגודלו (בלי למיין!).",
+"5 3 8 1 9 2 7 4 6 0","8",
+["נהל שני משתנים: max ו-second.","כשמוצאים מספר גדול מ-max: second מקבל את max הישן, ו-max מתעדכן. אחרת, אם גדול מ-second — עדכן רק את second."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int arr[10];
+    for (int i = 0; i < 10; i++) {
+        cin >> arr[i];
+    }
+    int max, second;
+    if (arr[0] > arr[1]) {
+        max = arr[0];
+        second = arr[1];
+    } else {
+        max = arr[1];
+        second = arr[0];
+    }
+    for (int i = 2; i < 10; i++) {
+        if (arr[i] > max) {
+            second = max;
+            max = arr[i];
+        } else if (arr[i] > second) {
+            second = arr[i];
+        }
+    }
+    cout << second << endl;
+    return 0;
+}`,["second","max","else if"])
+);
+
+/* ===== שלב 8: מחרוזות בסיסיות (101-105) ===== */
+EX.push(
+e(101,7,7,"אורך מחרוזת",
+"קלוט מילה (מערך תווים) והדפס את מספר התווים שלה — בלי strlen! מחרוזת ב-C נגמרת בתו מיוחד '\\0'.",
+"hello","5",
+["הגדר: char str[100]; cin >> str; המחרוזת נגמרת בתו '\\0'.","רוץ עם לולאה עד שפוגשים את התו '\\0' וספור תווים."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    char str[100];
+    cin >> str;
+    int length = 0;
+    while (str[length] != '\\0') {
+        length++;
+    }
+    cout << length << endl;
+    return 0;
+}`,["char str","'\\0'","while"]),
+
+e(102,7,7,"ספירת תנועות (vowels)",
+"קלוט מילה באותיות קטנות והדפס כמה תנועות יש בה (a, e, i, o, u).",
+"programming","3",
+["עבור על המחרוזת תו-תו עד '\\0'.","לכל תו בדוק: if (c == 'a' || c == 'e' || ...) עם ||"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    char str[100];
+    cin >> str;
+    int count = 0;
+    for (int i = 0; str[i] != '\\0'; i++) {
+        char c = str[i];
+        if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u')
+            count++;
+    }
+    cout << count << endl;
+    return 0;
+}`,["char","||","for"]),
+
+e(103,7,8,"היפוך מחרוזת",
+"קלוט מילה והדפס אותה הפוך. לדוגמה: abc יודפס cba",
+"hello","olleh",
+["קודם מצא את אורך המחרוזת (כמו בתרגיל 101).","אחר כך הדפס מהתו האחרון לראשון: for (int i = length - 1; i >= 0; i--)"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    char str[100];
+    cin >> str;
+    int length = 0;
+    while (str[length] != '\\0') {
+        length++;
+    }
+    for (int i = length - 1; i >= 0; i--) {
+        cout << str[i];
+    }
+    cout << endl;
+    return 0;
+}`,["char","i--","for"]),
+
+e(104,7,8,"פלינדרום מחרוזת",
+"קלוט מילה והדפס Yes אם היא פלינדרום (נקראת אותו דבר משני הכיוונים, כמו abba), אחרת No.",
+"abba","Yes",
+["השווה את התו הראשון לאחרון, השני ללפני-אחרון וכן הלאה.","שני אינדקסים: i מההתחלה ו-j מהסוף. אם str[i] != str[j] — לא פלינדרום."],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    char str[100];
+    cin >> str;
+    int length = 0;
+    while (str[length] != '\\0') {
+        length++;
+    }
+    bool isPal = true;
+    int i = 0, j = length - 1;
+    while (i < j) {
+        if (str[i] != str[j]) {
+            isPal = false;
+            break;
+        }
+        i++;
+        j--;
+    }
+    if (isPal)
+        cout << "Yes" << endl;
+    else
+        cout << "No" << endl;
+    return 0;
+}`,["char","bool","!="]),
+
+e(105,7,8,"אותיות גדולות לקטנות",
+"קלוט מילה באותיות גדולות והדפס אותה באותיות קטנות. לדוגמה: HELLO יהפוך ל-hello. (בלי tolower!)",
+"HELLO","hello",
+["ההפרש בין אות גדולה לקטנה ב-ASCII קבוע: 'a' - 'A' = 32","לכל תו שהוא אות גדולה: str[i] = str[i] - 'A' + 'a';"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    char str[100];
+    cin >> str;
+    for (int i = 0; str[i] != '\\0'; i++) {
+        if (str[i] >= 'A' && str[i] <= 'Z') {
+            str[i] = str[i] - 'A' + 'a';
+        }
+    }
+    cout << str << endl;
+    return 0;
+}`,["char","'A'","'a'"]),
+
+/* ===== שלב 9: מצביעים (106-110) ===== */
+e(106,8,8,"מצביע ראשון",
+"הגדר משתנה x עם הערך 10 ומצביע p שמצביע עליו. הדפס את ערך x דרך המצביע (עם *p), ואז שנה את הערך דרך המצביע ל-20 והדפס את x עצמו.",
+"(אין קלט)","10\n20",
+["מצביע מוגדר כך: int *p = &x; הסימן & נותן את הכתובת של x.","*p פירושו 'הערך שבכתובת' — גם לקריאה וגם לכתיבה: *p = 20;"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int x = 10;
+    int *p = &x;
+    cout << *p << endl;
+    *p = 20;
+    cout << x << endl;
+    return 0;
+}`,["int *p","&x","*p"]),
+
+e(107,8,8,"החלפה עם מצביעים",
+"כתוב פונקציה swap2 שמקבלת שני מצביעים ל-int ומחליפה בין הערכים שהם מצביעים עליהם. ב-main קלוט שני מספרים, קרא לפונקציה עם הכתובות שלהם והדפס את התוצאה.",
+"3 7","7 3",
+["חתימת הפונקציה: void swap2(int *a, int *b) — עבודה על הערכים המקוריים!","בתוך הפונקציה: int temp = *a; *a = *b; *b = temp; וקריאה: swap2(&x, &y);"],
+`#include <iostream>
+using namespace std;
+
+void swap2(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+int main() {
+    int x, y;
+    cin >> x >> y;
+    swap2(&x, &y);
+    cout << x << " " << y << endl;
+    return 0;
+}`,["int *a","&x","temp"]),
+
+e(108,8,8,"שינוי דרך מצביע",
+"כתוב פונקציה doubleIt שמקבלת מצביע ל-int ומכפילה את הערך שהוא מצביע עליו פי 2. ב-main קלוט מספר, קרא לפונקציה והדפס את המספר אחרי השינוי.",
+"6","12",
+["הפונקציה לא מחזירה כלום (void) — היא משנה את המקור דרך המצביע.","בתוך הפונקציה: *p = *p * 2; והקריאה: doubleIt(&n);"],
+`#include <iostream>
+using namespace std;
+
+void doubleIt(int *p) {
+    *p = *p * 2;
+}
+
+int main() {
+    int n;
+    cin >> n;
+    doubleIt(&n);
+    cout << n << endl;
+    return 0;
+}`,["int *p","*p","&n"]),
+
+e(109,8,9,"סכום מערך עם מצביע",
+"קלוט 5 מספרים למערך וחשב את הסכום שלהם בעזרת מצביע שרץ על המערך (בלי arr[i] בלולאת הסכימה!).",
+"1 2 3 4 5","15",
+["שם של מערך הוא בעצם כתובת האיבר הראשון: int *p = arr;","אפשר לקדם מצביע עם p++ — הוא עובר לאיבר הבא. הערך הנוכחי: *p"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    int arr[5], sum = 0;
+    for (int i = 0; i < 5; i++) {
+        cin >> arr[i];
+    }
+    int *p = arr;
+    for (int i = 0; i < 5; i++) {
+        sum = sum + *p;
+        p++;
+    }
+    cout << sum << endl;
+    return 0;
+}`,["int *p","*p","p++"]),
+
+e(110,8,9,"אורך מחרוזת עם מצביע",
+"קלוט מילה וחשב את אורכה בעזרת מצביע בלבד: קדם את המצביע עד שהוא מגיע ל-'\\0' וספור צעדים.",
+"pointer","7",
+["התחל: char *p = str; וקדם את p כל עוד *p != '\\0'","האורך הוא מספר הצעדים, או ההפרש בין המצביע הסופי להתחלה: p - str"],
+`#include <iostream>
+using namespace std;
+
+int main() {
+    char str[100];
+    cin >> str;
+    char *p = str;
+    while (*p != '\\0') {
+        p++;
+    }
+    cout << p - str << endl;
+    return 0;
+}`,["char *p","*p","p++"])
+);
+
+/* ================= app logic ================= */
+const TOTAL = EX.length;
+const LS_KEY = "cppTrainerV1";
+
+function loadStore() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (err) {}
+  return {done: {}, codes: {}, last: 1};
+}
+function saveStore() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(store));
+  } catch (err) {}
+}
+let store = loadStore();
+let cur = store.last || 1;
+let hintStep = 0;
+
+const $ = id => document.getElementById(id);
+function exByNum(n) { return EX[n - 1]; }
+function doneCount() { return Object.keys(store.done).filter(k => store.done[k]).length; }
+
+/* ---------- header ---------- */
+function renderHeader() {
+  const d = doneCount();
+  const pct = Math.round(d / TOTAL * 100);
+  $("headStats").textContent = d + " / " + TOTAL + " · " + pct + "%";
+  $("headBar").style.width = pct + "%";
+}
+
+/* ---------- menu ---------- */
+function renderMenu() {
+  const lastEx = exByNum(store.last || 1);
+  $("continueSub").textContent = "התרגיל האחרון שלך: תרגיל " + lastEx.n + " — " + lastEx.title;
+
+  let html = "";
+  TOPICS.forEach((t, ti) => {
+    const items = EX.filter(x => x.topic === ti);
+    if (items.length === 0) return;
+    const solved = items.filter(x => store.done[x.n]).length;
+    const pct = Math.round(solved / items.length * 100);
+    html += '<button class="topic" data-topic="' + ti + '">' +
+      '<span class="ico">' + t.ico + '</span>' +
+      '<span class="t-info">' +
+        '<div class="t-name">' + t.name + '</div>' +
+        '<div class="t-count">תרגילים ' + items[0].n + '-' + items[items.length - 1].n +
+          ' · הושלמו ' + solved + ' מתוך ' + items.length + '</div>' +
+        '<div class="mini-bar"><div class="mini-fill" style="width:' + pct + '%"></div></div>' +
+      '</span>' +
+      '<span class="t-pct">' + pct + '%</span>' +
+    '</button>';
+  });
+  $("topicsList").innerHTML = html;
+  $("topicsList").querySelectorAll(".topic").forEach(btn => {
+    btn.onclick = () => {
+      const ti = parseInt(btn.dataset.topic);
+      const items = EX.filter(x => x.topic === ti);
+      const firstUnsolved = items.find(x => !store.done[x.n]) || items[0];
+      openEx(firstUnsolved.n);
+    };
+  });
+
+  let grid = "";
+  EX.forEach(x => {
+    const cls = "gcell" + (store.done[x.n] ? " done" : "") + (x.n === store.last ? " current" : "");
+    grid += '<button class="' + cls + '" data-n="' + x.n + '">' + x.n + '</button>';
+  });
+  $("exGrid").innerHTML = grid;
+  $("exGrid").querySelectorAll(".gcell").forEach(btn => {
+    btn.onclick = () => openEx(parseInt(btn.dataset.n));
+  });
+}
+
+function showMenu() {
+  renderHeader();
+  renderMenu();
+  $("exView").classList.add("hidden");
+  $("menuView").classList.remove("hidden");
+  window.scrollTo(0, 0);
+}
+
+/* ---------- exercise ---------- */
+function openEx(n) {
+  cur = n;
+  store.last = n;
+  saveStore();
+  const x = exByNum(n);
+  hintStep = 0;
+
+  $("exNumChip").textContent = "תרגיל " + x.n + " מתוך " + TOTAL;
+  $("exTopicChip").textContent = TOPICS[x.topic].ico + " " + TOPICS[x.topic].name;
+  $("exTitle").textContent = x.title;
+  $("exDesc").textContent = x.desc;
+  $("exInput").textContent = x.inp;
+  $("exOutput").textContent = x.out;
+
+  let dots = "";
+  for (let i = 1; i <= 10; i++) {
+    dots += '<span class="dot' + (i <= x.d ? " on" : "") + '"></span>';
+  }
+  dots += '<span class="lbl">רמת קושי ' + x.d + '/10</span>';
+  $("diffDots").innerHTML = dots;
+
+  $("editor").value = store.codes[n] || "";
+  $("hintsArea").innerHTML = "";
+  $("hintBtn").disabled = false;
+  $("hintBtn").textContent = "💡 רמז";
+  $("feedback").className = "feedback";
+  $("feedback").textContent = "";
+  $("solBox").style.display = "none";
+  $("solCode").textContent = "";
+
+  $("prevBtn").disabled = (n === 1);
+  $("nextBtn").disabled = (n === TOTAL);
+  updateDoneUi();
+  renderHeader();
+
+  $("menuView").classList.add("hidden");
+  $("exView").classList.remove("hidden");
+  window.scrollTo(0, 0);
+}
+
+function updateDoneUi() {
+  const isDone = !!store.done[cur];
+  $("doneBadge").style.display = isDone ? "inline-block" : "none";
+  $("markBtn").textContent = isDone ? "↩ בטל סימון הושלם" : "✓ סמן כהושלם";
+  $("markBtn").className = isDone ? "btn full" : "btn success full";
+}
+
+/* ---------- hints & solution ---------- */
+$("hintBtn").onclick = () => {
+  const x = exByNum(cur);
+  if (hintStep < x.hints.length) {
+    const div = document.createElement("div");
+    div.className = "hint-box";
+    div.textContent = "💡 רמז " + (hintStep + 1) + ": " + x.hints[hintStep];
+    $("hintsArea").appendChild(div);
+    hintStep++;
+  }
+  if (hintStep >= x.hints.length) {
+    $("hintBtn").disabled = true;
+    $("hintBtn").textContent = "אין עוד רמזים";
+  } else {
+    $("hintBtn").textContent = "💡 רמז נוסף";
+  }
+};
+
+$("solBtn").onclick = () => {
+  const x = exByNum(cur);
+  const box = $("solBox");
+  if (box.style.display === "block") {
+    box.style.display = "none";
+  } else {
+    $("solCode").textContent = x.sol;
+    box.style.display = "block";
+  }
+};
+
+/* ---------- editor autosave ---------- */
+$("editor").addEventListener("input", () => {
+  store.codes[cur] = $("editor").value;
+  saveStore();
+});
+
+/* ---------- check solution ---------- */
+function stripCode(code) {
+  return code
+    .replace(/\/\/[^\n]*/g, " ")
+    .replace(/\/\*[\s\S]*?\*\//g, " ");
+}
+function tokenize(code) {
+  return code.match(/[A-Za-z_][A-Za-z_0-9]*|[0-9]+|"[^"]*"|\S/g) || [];
+}
+function checkCode() {
+  const x = exByNum(cur);
+  const raw = $("editor").value;
+  const code = stripCode(raw);
+  const fb = $("feedback");
+
+  if (code.trim().length < 20) {
+    fb.className = "feedback bad";
+    fb.textContent = "✏️ עוד לא כתבת מספיק קוד. נסה לכתוב פתרון מלא — ואם נתקעת, קח רמז!";
+    return;
+  }
+
+  const problems = [];
+  if (!code.includes("#include")) problems.push("חסר #include <iostream>");
+  if (!code.includes("main")) problems.push("חסרה הפונקציה main");
+  const missing = x.kw.filter(k => !code.includes(k));
+  missing.forEach(k => problems.push("נראה שחסר שימוש ב: " + k));
+
+  const opens = (code.match(/{/g) || []).length;
+  const closes = (code.match(/}/g) || []).length;
+  if (opens !== closes) problems.push("מספר הסוגריים המסולסלים { } לא מאוזן");
+
+  if (problems.length > 0) {
+    fb.className = "feedback bad";
+    fb.textContent = "כמעט! שים לב לנקודות הבאות:\n• " + problems.join("\n• ");
+    return;
+  }
+
+  const userTokens = tokenize(code);
+  const solTokens = tokenize(stripCode(x.sol));
+  const userSet = {};
+  userTokens.forEach(t => { userSet[t] = (userSet[t] || 0) + 1; });
+  let matched = 0;
+  const solSet = {};
+  solTokens.forEach(t => { solSet[t] = (solSet[t] || 0) + 1; });
+  for (const t in solSet) {
+    matched += Math.min(solSet[t], userSet[t] || 0);
+  }
+  const score = matched / solTokens.length;
+
+  if (score >= 0.55) {
+    fb.className = "feedback ok";
+    fb.textContent = "🎉 מעולה! הפתרון שלך מכיל את כל מה שצריך ונראה קרוב מאוד לפתרון לדוגמה. התרגיל סומן כהושלם!";
+    if (!store.done[cur]) {
+      store.done[cur] = true;
+      saveStore();
+      updateDoneUi();
+      renderHeader();
+    }
+  } else {
+    fb.className = "feedback mid";
+    fb.textContent = "👍 יש לך את כל מילות המפתח הנכונות, אבל הפתרון שונה מהצפוי. זה לא בהכרח רע — יש יותר מדרך אחת! השווה לפתרון המלא, ואם אתה בטוח שהקוד נכון — סמן כהושלם.";
+  }
+}
+$("checkBtn").onclick = checkCode;
+
+/* ---------- mark / nav ---------- */
+$("markBtn").onclick = () => {
+  store.done[cur] = !store.done[cur];
+  if (!store.done[cur]) delete store.done[cur];
+  saveStore();
+  updateDoneUi();
+  renderHeader();
+};
+$("prevBtn").onclick = () => { if (cur > 1) openEx(cur - 1); };
+$("nextBtn").onclick = () => { if (cur < TOTAL) openEx(cur + 1); };
+$("backBtn").onclick = showMenu;
+$("continueBtn").onclick = () => openEx(store.last || 1);
+
+/* ---------- reset ---------- */
+$("resetBtn").onclick = () => {
+  if (confirm("לאפס את כל ההתקדמות? כל הקוד השמור והסימונים יימחקו.")) {
+    store = {done: {}, codes: {}, last: 1};
+    saveStore();
+    showMenu();
+  }
+};
+
+/* ---------- start ---------- */
+showMenu();
+</script>
+</body>
+</html>
