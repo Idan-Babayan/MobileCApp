@@ -105,6 +105,34 @@ header{
 }
 .gcell.done{background:#12351f;border-color:#1f9d5f;color:var(--green)}
 .gcell.current{outline:2px solid var(--accent)}
+/* ---------- stats ---------- */
+.stat-row{display:flex;gap:8px;margin-top:10px}
+.stat{flex:1;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}
+.stat .v{font-size:20px;font-weight:800;color:var(--accent)}
+.stat .k{font-size:12px;color:var(--muted);margin-top:3px}
+/* ---------- search ---------- */
+input.search{
+  width:100%;background:var(--code-bg);color:var(--text);
+  border:1px solid var(--line);border-radius:12px;
+  padding:10px 12px;font-family:inherit;font-size:16px;outline:none;margin-top:10px;
+}
+input.search:focus{border-color:var(--accent)}
+.result{
+  display:flex;align-items:center;gap:10px;width:100%;
+  background:var(--card2);border:1px solid var(--line);border-radius:12px;
+  padding:10px 12px;margin-top:8px;cursor:pointer;color:var(--text);
+  font-family:inherit;text-align:right;
+}
+.result:active{filter:brightness(1.2)}
+.result .r-num{
+  min-width:34px;height:34px;border-radius:10px;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;
+}
+.result .r-num.done{background:#12351f;color:var(--green)}
+.result .r-info{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.result .r-title{font-weight:700;font-size:15px}
+.result .r-topic{color:var(--muted);font-size:12px}
+.result .r-done{color:var(--green);font-weight:800}
 /* ---------- exercise view ---------- */
 .ex-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:14px}
 .chip{
@@ -175,6 +203,19 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:28px}
       <h2>👋 ברוך הבא למאמן האישי שלך</h2>
       <div class="sub" id="continueSub"></div>
       <button class="btn primary full" id="continueBtn" style="margin-top:8px">▶ המשך תרגול</button>
+      <div class="btn-row">
+        <button class="btn" id="nextUnsolvedBtn">⏭ הבא שלא נפתר</button>
+        <button class="btn" id="randomBtn">🎲 תרגיל אקראי</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📊 סטטיסטיקה</h2>
+      <div class="stat-row">
+        <div class="stat"><div class="v" id="statDone">0</div><div class="k">הושלמו</div></div>
+        <div class="stat"><div class="v" id="statPct">0%</div><div class="k">התקדמות</div></div>
+        <div class="stat"><div class="v" id="statStreak">0</div><div class="k">🔥 ימי רצף</div></div>
+      </div>
     </div>
 
     <div id="topicsList"></div>
@@ -182,13 +223,22 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:28px}
     <div class="card">
       <h2>כל התרגילים</h2>
       <div class="small-note">ירוק = הושלם. לחץ על מספר כדי לקפוץ לתרגיל.</div>
+      <input class="search" id="searchBox" type="search" placeholder="🔍 חיפוש לפי מספר, שם או נושא...">
+      <div id="searchResults"></div>
       <div class="grid" id="exGrid"></div>
     </div>
 
     <div class="card">
       <h2>⚙️ נתונים</h2>
-      <button class="btn warn full" id="resetBtn">איפוס כל ההתקדמות</button>
-      <div class="small-note">ההתקדמות נשמרת בזיכרון הדפדפן (localStorage) במכשיר הזה בלבד.</div>
+      <div class="btn-row" style="margin-top:0">
+        <button class="btn" id="exportBtn">⬇ גיבוי התקדמות</button>
+        <button class="btn" id="importBtn">⬆ שחזור מגיבוי</button>
+      </div>
+      <input type="file" id="importFile" accept=".json,application/json" class="hidden">
+      <div class="btn-row">
+        <button class="btn warn full" id="resetBtn">איפוס כל ההתקדמות</button>
+      </div>
+      <div class="small-note">ההתקדמות נשמרת בזיכרון הדפדפן (localStorage) במכשיר הזה בלבד. מומלץ להוריד גיבוי מדי פעם — הדפדפן עלול למחוק את האחסון (למשל ב-iOS אחרי תקופה ללא שימוש).</div>
     </div>
 
     <footer>עובד לגמרי Offline · קובץ HTML יחיד · בהצלחה בלימוד 💪</footer>
@@ -2446,21 +2496,24 @@ int main() {
 const TOTAL = EX.length;
 const LS_KEY = "cppTrainerV1";
 
+function normalizeStore(s) {
+  if (!s || typeof s !== "object" || !s.done || typeof s.done !== "object") return null;
+  return {
+    done: s.done,
+    codes: (s.codes && typeof s.codes === "object") ? s.codes : {},
+    activity: (s.activity && typeof s.activity === "object") ? s.activity : {},
+    last: (typeof s.last === "number" && s.last >= 1 && s.last <= TOTAL) ? s.last : 1
+  };
+}
 function loadStore() {
   try {
     const raw = localStorage.getItem(LS_KEY);
     if (raw) {
-      const s = JSON.parse(raw);
-      if (s && typeof s === "object") {
-        return {
-          done: (s.done && typeof s.done === "object") ? s.done : {},
-          codes: (s.codes && typeof s.codes === "object") ? s.codes : {},
-          last: (typeof s.last === "number" && s.last >= 1 && s.last <= TOTAL) ? s.last : 1
-        };
-      }
+      const s = normalizeStore(JSON.parse(raw));
+      if (s) return s;
     }
   } catch (err) {}
-  return {done: {}, codes: {}, last: 1};
+  return {done: {}, codes: {}, activity: {}, last: 1};
 }
 function saveStore() {
   try {
@@ -2475,6 +2528,30 @@ const $ = id => document.getElementById(id);
 function exByNum(n) { return EX[n - 1]; }
 function doneCount() { return Object.keys(store.done).filter(k => store.done[k]).length; }
 
+/* ---------- daily streak ---------- */
+function dateKey(d) {
+  return d.getFullYear() + "-" +
+    String(d.getMonth() + 1).padStart(2, "0") + "-" +
+    String(d.getDate()).padStart(2, "0");
+}
+function recordActivity() {
+  const k = dateKey(new Date());
+  store.activity[k] = (store.activity[k] || 0) + 1;
+}
+function streakDays() {
+  const DAY = 86400000;
+  let t = new Date();
+  t.setHours(12, 0, 0, 0);
+  // הרצף נשמר גם אם היום עוד לא תרגלת — מתחילים לספור מאתמול במקרה כזה
+  if (!store.activity[dateKey(t)]) t = new Date(t.getTime() - DAY);
+  let s = 0;
+  while (store.activity[dateKey(t)]) {
+    s++;
+    t = new Date(t.getTime() - DAY);
+  }
+  return s;
+}
+
 /* ---------- header ---------- */
 function renderHeader() {
   const d = doneCount();
@@ -2487,6 +2564,11 @@ function renderHeader() {
 function renderMenu() {
   const lastEx = exByNum(store.last || 1);
   $("continueSub").textContent = "התרגיל האחרון שלך: תרגיל " + lastEx.n + " — " + lastEx.title;
+
+  const d = doneCount();
+  $("statDone").textContent = d + " / " + TOTAL;
+  $("statPct").textContent = Math.round(d / TOTAL * 100) + "%";
+  $("statStreak").textContent = streakDays();
 
   let html = "";
   TOPICS.forEach((t, ti) => {
@@ -2524,7 +2606,50 @@ function renderMenu() {
   $("exGrid").querySelectorAll(".gcell").forEach(btn => {
     btn.onclick = () => openEx(parseInt(btn.dataset.n));
   });
+
+  renderSearch();
 }
+
+/* ---------- search ---------- */
+function renderSearch() {
+  const q = $("searchBox").value.trim().toLowerCase();
+  const res = $("searchResults");
+  const grid = $("exGrid");
+  if (!q) {
+    res.innerHTML = "";
+    grid.style.display = "";
+    return;
+  }
+  grid.style.display = "none";
+  const num = parseInt(q, 10);
+  const matches = EX.filter(x =>
+    x.n === num ||
+    x.title.toLowerCase().includes(q) ||
+    x.desc.toLowerCase().includes(q) ||
+    TOPICS[x.topic].name.toLowerCase().includes(q)
+  ).slice(0, 30);
+  if (matches.length === 0) {
+    res.innerHTML = '<div class="small-note">לא נמצאו תרגילים תואמים.</div>';
+    return;
+  }
+  let html = "";
+  matches.forEach(x => {
+    const isDone = !!store.done[x.n];
+    html += '<button class="result" data-n="' + x.n + '">' +
+      '<span class="r-num' + (isDone ? " done" : "") + '">' + x.n + '</span>' +
+      '<span class="r-info">' +
+        '<span class="r-title">' + x.title + '</span>' +
+        '<span class="r-topic">' + TOPICS[x.topic].ico + ' ' + TOPICS[x.topic].name + ' · קושי ' + x.d + '/10</span>' +
+      '</span>' +
+      (isDone ? '<span class="r-done">✓</span>' : '') +
+    '</button>';
+  });
+  res.innerHTML = html;
+  res.querySelectorAll(".result").forEach(btn => {
+    btn.onclick = () => openEx(parseInt(btn.dataset.n));
+  });
+}
+$("searchBox").addEventListener("input", renderSearch);
 
 function showMenu() {
   renderHeader();
@@ -2618,11 +2743,52 @@ $("editor").addEventListener("input", () => {
   saveStore();
 });
 
+/* ---------- editor: Tab + אינדנטציה אוטומטית ---------- */
+$("editor").addEventListener("keydown", ev => {
+  const ta = ev.target;
+  const start = ta.selectionStart, end = ta.selectionEnd, v = ta.value;
+
+  if (ev.key === "Tab") {
+    ev.preventDefault();
+    const lineStart = v.lastIndexOf("\n", start - 1) + 1;
+    if (ev.shiftKey) {
+      let rm = 0;
+      while (rm < 4 && v[lineStart + rm] === " ") rm++;
+      if (rm > 0) {
+        ta.value = v.slice(0, lineStart) + v.slice(lineStart + rm);
+        ta.selectionStart = Math.max(lineStart, start - rm);
+        ta.selectionEnd = Math.max(lineStart, end - rm);
+      }
+    } else {
+      ta.value = v.slice(0, start) + "    " + v.slice(end);
+      ta.selectionStart = ta.selectionEnd = start + 4;
+    }
+    ta.dispatchEvent(new Event("input"));
+  } else if (ev.key === "Enter") {
+    ev.preventDefault();
+    const lineStart = v.lastIndexOf("\n", start - 1) + 1;
+    let indent = "";
+    for (let i = lineStart; i < start && v[i] === " "; i++) indent += " ";
+    if (v[start - 1] === "{") indent += "    ";
+    const ins = "\n" + indent;
+    ta.value = v.slice(0, start) + ins + v.slice(end);
+    ta.selectionStart = ta.selectionEnd = start + ins.length;
+    ta.dispatchEvent(new Event("input"));
+  }
+});
+
 /* ---------- check solution ---------- */
 function stripCode(code) {
   return code
     .replace(/\/\/[^\n]*/g, " ")
     .replace(/\/\*[\s\S]*?\*\//g, " ");
+}
+/* מסיר מחרוזות ותווים כדי שסוגריים בתוכם לא ישבשו את ספירת האיזון.
+   מחרוזת סגורה מוחלפת כולה — גרש כפול שנשאר אחרי ההסרה מעיד על מחרוזת פתוחה. */
+function stripStrings(code) {
+  return code
+    .replace(/"(?:\\.|[^"\\\n])*"/g, "str")
+    .replace(/'(?:\\.|[^'\\\n])*'/g, "chr");
 }
 function tokenize(code) {
   return code.match(/[A-Za-z_][A-Za-z_0-9]*|[0-9]+|"[^"]*"|\S/g) || [];
@@ -2648,9 +2814,14 @@ function checkCode() {
   const missing = x.kw.filter(k => !hasKw(k));
   missing.forEach(k => problems.push("נראה שחסר שימוש ב: " + k));
 
-  const opens = (code.match(/{/g) || []).length;
-  const closes = (code.match(/}/g) || []).length;
+  const bare = stripStrings(code);
+  if (bare.includes('"')) problems.push('יש מחרוזת שלא נסגרה — חסר גרש כפול (\")');
+  const opens = (bare.match(/{/g) || []).length;
+  const closes = (bare.match(/}/g) || []).length;
   if (opens !== closes) problems.push("מספר הסוגריים המסולסלים { } לא מאוזן");
+  const popen = (bare.match(/\(/g) || []).length;
+  const pclose = (bare.match(/\)/g) || []).length;
+  if (popen !== pclose) problems.push("מספר הסוגריים העגולים ( ) לא מאוזן");
 
   if (problems.length > 0) {
     fb.className = "feedback bad";
@@ -2675,6 +2846,7 @@ function checkCode() {
     fb.textContent = "🎉 מעולה! הפתרון שלך מכיל את כל מה שצריך ונראה קרוב מאוד לפתרון לדוגמה. התרגיל סומן כהושלם!";
     if (!store.done[cur]) {
       store.done[cur] = true;
+      recordActivity();
       saveStore();
       updateDoneUi();
       renderHeader();
@@ -2688,8 +2860,12 @@ $("checkBtn").onclick = checkCode;
 
 /* ---------- mark / nav ---------- */
 $("markBtn").onclick = () => {
-  store.done[cur] = !store.done[cur];
-  if (!store.done[cur]) delete store.done[cur];
+  if (store.done[cur]) {
+    delete store.done[cur];
+  } else {
+    store.done[cur] = true;
+    recordActivity();
+  }
   saveStore();
   updateDoneUi();
   renderHeader();
@@ -2699,10 +2875,63 @@ $("nextBtn").onclick = () => { if (cur < TOTAL) openEx(cur + 1); };
 $("backBtn").onclick = showMenu;
 $("continueBtn").onclick = () => openEx(store.last || 1);
 
+function firstUnsolvedFrom(start) {
+  for (let i = 0; i < TOTAL; i++) {
+    const n = ((start - 1 + i) % TOTAL) + 1;
+    if (!store.done[n]) return n;
+  }
+  return null;
+}
+$("nextUnsolvedBtn").onclick = () => {
+  const n = firstUnsolvedFrom((store.last || 1) + 1);
+  openEx(n || store.last || 1);
+};
+$("randomBtn").onclick = () => {
+  const unsolved = EX.filter(x => !store.done[x.n]).map(x => x.n);
+  const pool = unsolved.length ? unsolved : EX.map(x => x.n);
+  openEx(pool[Math.floor(Math.random() * pool.length)]);
+};
+
+/* ---------- backup: export / import ---------- */
+$("exportBtn").onclick = () => {
+  const data = JSON.stringify({app: "cppTrainer", version: 1, exported: new Date().toISOString(), store: store}, null, 2);
+  const blob = new Blob([data], {type: "application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "cpp-trainer-backup-" + dateKey(new Date()) + ".json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+};
+$("importBtn").onclick = () => $("importFile").click();
+$("importFile").addEventListener("change", () => {
+  const f = $("importFile").files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      const s = normalizeStore(data && data.app === "cppTrainer" ? data.store : data);
+      if (!s) throw new Error("invalid backup");
+      const solved = Object.keys(s.done).filter(k => s.done[k]).length;
+      if (confirm("לשחזר גיבוי עם " + solved + " תרגילים שהושלמו? ההתקדמות הנוכחית במכשיר תוחלף.")) {
+        store = s;
+        saveStore();
+        showMenu();
+      }
+    } catch (err) {
+      alert("קובץ הגיבוי אינו תקין.");
+    }
+    $("importFile").value = "";
+  };
+  reader.readAsText(f);
+});
+
 /* ---------- reset ---------- */
 $("resetBtn").onclick = () => {
   if (confirm("לאפס את כל ההתקדמות? כל הקוד השמור והסימונים יימחקו.")) {
-    store = {done: {}, codes: {}, last: 1};
+    store = {done: {}, codes: {}, activity: {}, last: 1};
     saveStore();
     showMenu();
   }

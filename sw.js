@@ -1,6 +1,6 @@
 /* Service Worker: מאפשר לאפליקציה לעבוד Offline אחרי הביקור הראשון */
-const CACHE = "cpp-trainer-v1";
-const ASSETS = ["./", "./index.html", "./icon.png", "./manifest.webmanifest"];
+const CACHE = "cpp-trainer-v2";
+const ASSETS = ["./", "./index.html", "./icon.png", "./icon.svg", "./manifest.webmanifest"];
 
 self.addEventListener("install", event => {
   event.waitUntil(
