@@ -1,0 +1,16 @@
+{
+  "name": "מאמן C++ — תרגול אישי",
+  "short_name": "מאמן C++",
+  "description": "אפליקציית תרגול אישית ללימוד C++ למתחילים — 110 תרגילים מדורגים",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d1220",
+  "theme_color": "#0d1220",
+  "dir": "rtl",
+  "lang": "he",
+  "icons": [
+    { "src": "icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
